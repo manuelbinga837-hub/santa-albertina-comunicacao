@@ -1,0 +1,2585 @@
+import "./pages/Eventos/eventos.controller.js";
+import { navigate, startRouter, getCurrentRoute } from "./router/router.js";
+import { CommunicationLayout } from "./layouts/CommunicationLayout/CommunicationLayout.js";
+import { Noticias } from "./pages/Noticias/Noticias.js";
+import { Eventos } from "./pages/Eventos/Eventos.js";
+import { Galeria } from "./pages/Galeria/Galeria.js";
+import { Videos, setupVideosPage } from "./pages/Videos/Videos.js";
+import { Mensagens, setupMessagesPage } from "./pages/Mensagens/Mensagens.js";
+import Configuracoes from "./pages/Configuracoes/Configuracoes.js";
+import "./pages/Videos/Videos.css";
+import "./pages/Mensagens/Mensagens.css";
+import "./pages/Configuracoes/Configuracoes.css";
+import "./pages/Galeria/galeria.controller.js";
+import { getCurrentUser, isAuthenticated, logout } from "./services/auth.js";
+import { Login, setupLogin } from "./pages/Login/Login.js";
+
+import "./styles/main.css";
+import "./pages/Dashboard/Dashboard.css";
+import "./pages/Noticias/Noticias.css";
+import "./pages/Login/Login.css";
+
+import { apiRequest } from "./services/api.js";
+import { getNews } from "./services/news.js";
+import { getEvents } from "./services/events.js";
+const app = document.querySelector("#app");
+
+function Dashboard() {
+  return `
+    <section class="dashboard">
+
+      <!-- HERO PRINCIPAL -->
+      <section class="dashboard-hero">
+
+        <div class="dashboard-hero-overlay"></div>
+
+        <div class="dashboard-hero-grid"></div>
+
+        <div class="dashboard-hero-meta">
+          <span class="hero-status">
+            <i></i>
+            Central activa
+          </span>
+
+          <span>Santa Albertina</span>
+        </div>
+
+        <div class="dashboard-hero-content">
+
+          <span class="dashboard-hero-eyebrow">
+            CENTRAL DE COMUNICAÇÃO
+          </span>
+
+          <h1>
+            Dê voz à comunidade
+            <strong>Santa Albertina.</strong>
+          </h1>
+
+          <p class="dashboard-hero-description">
+            Crie, publique e acompanhe notícias, eventos,
+            fotografias e vídeos da comunidade escolar
+            num único espaço.
+          </p>
+
+          <div class="dashboard-hero-actions">
+
+            <button
+              type="button"
+              class="dashboard-hero-primary"
+              id="dashboard-new-publication"
+            >
+              <span>+</span>
+              Nova publicação
+            </button>
+
+            <a
+              href="http://localhost:5173"
+              class="dashboard-hero-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver site público
+              <span>↗</span>
+            </a>
+
+          </div>
+
+        </div>
+
+        <div class="dashboard-hero-bottom">
+
+          <div>
+            <strong>04</strong>
+            <span>áreas de conteúdo</span>
+          </div>
+
+          <div>
+            <strong>24/7</strong>
+            <span>comunicação centralizada</span>
+          </div>
+
+          <div>
+            <strong>SA</strong>
+            <span>Santa Albertina</span>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MODAL — NOVA PUBLICAÇÃO -->
+      <div
+        class="publication-modal"
+        id="publication-modal"
+        aria-hidden="true"
+      >
+        <div
+          class="publication-modal-backdrop"
+          data-close-publication-modal
+        ></div>
+
+        <div
+          class="publication-modal-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="publication-modal-title"
+        >
+
+          <button
+            type="button"
+            class="publication-modal-close"
+            id="publication-modal-close"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+
+          <div class="publication-modal-header">
+
+            <span class="publication-modal-eyebrow">
+              NOVA PUBLICAÇÃO
+            </span>
+
+            <h2 id="publication-modal-title">
+              O que deseja publicar?
+            </h2>
+
+            <p>
+              Escolha o tipo de conteúdo. Será aberta a respectiva
+              área da Central de Comunicação.
+            </p>
+
+          </div>
+
+          <div class="publication-modal-options">
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/noticias"
+            >
+              <span class="publication-option-icon news">▤</span>
+
+              <span class="publication-option-text">
+                <strong>Nova notícia</strong>
+                <small>Publicar uma nova informação</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/eventos"
+            >
+              <span class="publication-option-icon event">▣</span>
+
+              <span class="publication-option-text">
+                <strong>Novo evento</strong>
+                <small>Criar um evento escolar</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/galeria"
+            >
+              <span class="publication-option-icon gallery">▧</span>
+
+              <span class="publication-option-text">
+                <strong>Nova galeria</strong>
+                <small>Criar um álbum de fotografias</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/videos"
+            >
+              <span class="publication-option-icon video">▶</span>
+
+              <span class="publication-option-text">
+                <strong>Novo vídeo</strong>
+                <small>Adicionar conteúdo audiovisual</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ESTATÍSTICAS -->
+      <section class="dashboard-section">
+
+        <div class="dashboard-section-heading">
+
+          <div>
+            <span class="dashboard-section-label">
+              VISÃO GERAL
+            </span>
+
+            <h2>
+              Conteúdo publicado
+            </h2>
+          </div>
+
+          <span class="dashboard-section-note">
+            Resumo da comunicação
+          </span>
+
+        </div>
+
+        <div class="dashboard-stats-grid">
+
+          <article class="dashboard-stat-card stat-news">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▤</span>
+              <span class="dashboard-stat-tag">Notícias</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              24
+            </div>
+
+            <p>
+              publicações disponíveis no site
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Conteúdo editorial</span>
+              <a href="/noticias" data-route="/noticias">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+
+          <article class="dashboard-stat-card stat-events">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▣</span>
+              <span class="dashboard-stat-tag">Eventos</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              8
+            </div>
+
+            <p>
+              eventos publicados para a comunidade
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Agenda escolar</span>
+              <a href="/eventos" data-route="/eventos">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+
+          <article class="dashboard-stat-card stat-gallery">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▧</span>
+              <span class="dashboard-stat-tag">Galeria</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              56
+            </div>
+
+            <p>
+              fotografias organizadas em álbuns
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Memória visual</span>
+              <a href="/galeria" data-route="/galeria">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+
+          <article class="dashboard-stat-card stat-videos">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▶</span>
+              <span class="dashboard-stat-tag">Vídeos</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              7
+            </div>
+
+            <p>
+              vídeos disponíveis para visualização
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Conteúdo audiovisual</span>
+              <a href="/videos" data-route="/videos">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- ACTIVIDADE + ACESSO RÁPIDO -->
+      <section class="dashboard-lower-grid">
+
+
+        <!-- ACTIVIDADE -->
+        <section class="dashboard-panel dashboard-activity">
+
+          <div class="dashboard-panel-header">
+
+            <div>
+              <span class="dashboard-section-label">
+                RECENTE
+              </span>
+
+              <h2>
+                Actividade recente
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              class="dashboard-panel-link"
+            >
+              Ver tudo →
+            </button>
+
+          </div>
+
+
+          <div class="dashboard-activity-list">
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon news">
+                ▤
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Nova notícia publicada
+                </strong>
+
+                <p>
+                  Início das actividades escolares
+                </p>
+
+                <span>
+                  Há 15 minutos
+                </span>
+              </div>
+
+              <span class="activity-status published">
+                Publicado
+              </span>
+
+            </article>
+
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon event">
+                ▣
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Novo evento criado
+                </strong>
+
+                <p>
+                  Reunião de encarregados
+                </p>
+
+                <span>
+                  Há 1 hora
+                </span>
+              </div>
+
+              <span class="activity-status published">
+                Publicado
+              </span>
+
+            </article>
+
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon video">
+                ▶
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Novo vídeo publicado
+                </strong>
+
+                <p>
+                  Actividade escolar
+                </p>
+
+                <span>
+                  Há 3 horas
+                </span>
+              </div>
+
+              <span class="activity-status published">
+                Publicado
+              </span>
+
+            </article>
+
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon message">
+                ✉
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Nova mensagem recebida
+                </strong>
+
+                <p>
+                  João Manuel enviou uma mensagem
+                </p>
+
+                <span>
+                  Há 4 horas
+                </span>
+              </div>
+
+              <span class="activity-status new">
+                Nova
+              </span>
+
+            </article>
+
+          </div>
+
+        </section>
+
+
+        <!-- ACESSO RÁPIDO -->
+        <section class="dashboard-panel dashboard-quick">
+
+          <div class="dashboard-panel-header">
+
+            <div>
+              <span class="dashboard-section-label">
+                ACESSO RÁPIDO
+              </span>
+
+              <h2>
+                Criar conteúdo
+              </h2>
+            </div>
+
+          </div>
+
+
+          <div class="dashboard-quick-grid">
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-news"
+              data-route="/noticias"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▤
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Nova notícia</strong>
+                <small>Publicar informação</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-event"
+              data-route="/eventos"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▣
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Novo evento</strong>
+                <small>Criar evento escolar</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-gallery"
+              data-route="/galeria"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▧
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Nova galeria</strong>
+                <small>Adicionar fotografias</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-video"
+              data-route="/videos"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▶
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Novo vídeo</strong>
+                <small>Adicionar conteúdo</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+          </div>
+
+        </section>
+
+      </section>
+
+    </section>
+  `;
+}
+
+
+async function loadDashboardStats() {
+  const stats = [
+    {
+      selector: ".stat-news .dashboard-stat-number",
+      endpoint: "/public/news"
+    },
+    {
+      selector: ".stat-events .dashboard-stat-number",
+      endpoint: "/public/events"
+    },
+    {
+      selector: ".stat-gallery .dashboard-stat-number",
+      endpoint: "/public/albums"
+    },
+    {
+      selector: ".stat-videos .dashboard-stat-number",
+      endpoint: "/public/videos"
+    }
+  ];
+
+  await Promise.all(
+    stats.map(async ({ selector, endpoint }) => {
+      const element = document.querySelector(selector);
+
+      if (!element) {
+        return;
+      }
+
+      try {
+        const response = await apiRequest(endpoint);
+        const items = Array.isArray(response?.data)
+          ? response.data
+          : [];
+
+        element.textContent = String(items.length);
+      } catch (error) {
+        console.error(
+          `Erro ao carregar estatística ${endpoint}:`,
+          error
+        );
+
+        element.textContent = "—";
+      }
+    })
+  );
+}
+
+
+
+async function loadEventsData() {
+  const grid = document.querySelector("#events-grid");
+  const emptyState = document.querySelector("#events-empty");
+
+  if (!grid || !emptyState) {
+    return;
+  }
+
+  try {
+    const events = await getEvents();
+
+    if (!Array.isArray(events) || events.length === 0) {
+      grid.innerHTML = "";
+      emptyState.hidden = false;
+      emptyState.style.display = "";
+      return;
+    }
+
+    emptyState.hidden = true;
+    emptyState.style.display = "none";
+
+    grid.innerHTML = events
+      .map((event) => renderEventCard(event))
+      .join("");
+  } catch (error) {
+    console.error("Erro ao carregar eventos:", error);
+
+    grid.innerHTML = "";
+    emptyState.hidden = false;
+  }
+}
+
+function renderEventCard(event) {
+  const title = escapeHtml(
+    event.title || "Evento sem título"
+  );
+
+  const summary = escapeHtml(
+    event.summary ||
+    event.description ||
+    "Sem descrição disponível."
+  );
+
+  const date = event.event_date
+    ? new Date(`${event.event_date}T00:00:00`)
+    : null;
+
+  const day = date
+    ? String(date.getDate()).padStart(2, "0")
+    : "--";
+
+  const month = date
+    ? date
+        .toLocaleDateString("pt-PT", {
+          month: "short"
+        })
+        .replace(".", "")
+    : "---";
+
+  const startTime = escapeHtml(
+    event.start_time || ""
+  );
+
+  const endTime = escapeHtml(
+    event.end_time || ""
+  );
+
+  const location = escapeHtml(
+    event.location || "Local não definido"
+  );
+
+  const time =
+    startTime && endTime
+      ? `${startTime} — ${endTime}`
+      : startTime || "Horário não definido";
+
+  const cover = event.cover_url
+    ? `
+      <img
+        class="event-card-cover"
+        src="${escapeHtml(event.cover_url)}"
+        alt=""
+      />
+    `
+    : `
+      <div
+        class="event-card-cover-placeholder"
+        aria-hidden="true"
+      >
+        <span>EVENTO</span>
+      </div>
+    `;
+
+  return `
+    <article class="event-card">
+
+      <div class="event-card-image">
+        ${cover}
+
+        <div class="event-card-date">
+          <strong>${day}</strong>
+          <span>${month}</span>
+        </div>
+
+        <div class="event-menu-wrapper">
+          <button
+            class="icon-button"
+            type="button"
+            aria-label="Mais opções"
+            data-action="event-menu"
+            data-event-id="${event.id}"
+          >
+            •••
+          </button>
+        </div>
+      </div>
+
+      <div class="event-card-content">
+
+        <span class="event-card-status">
+          ${escapeHtml(
+            event.publication_status || "DRAFT"
+          )}
+        </span>
+
+        <h3>${title}</h3>
+
+        <p>${summary}</p>
+
+        <div class="event-card-meta">
+          <span>◷ ${time}</span>
+          <span>⌖ ${location}</span>
+        </div>
+
+      </div>
+
+    </article>
+  `;
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatNewsDate(value) {
+  if (!value) {
+    return "Sem data";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Sem data";
+  }
+
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  })
+    .format(date)
+    .replace(".", "");
+}
+
+function getNewsStatusLabel(status) {
+  const labels = {
+    PUBLISHED: "Publicado",
+    DRAFT: "Rascunho",
+    SCHEDULED: "Agendado"
+  };
+
+  return labels[status] || status || "Sem estado";
+}
+
+function getNewsStatusClass(status) {
+  const classes = {
+    PUBLISHED: "published",
+    DRAFT: "draft",
+    SCHEDULED: "scheduled"
+  };
+
+  return classes[status] || "draft";
+}
+
+let allNewsData = [];
+
+function normalizeNewsText(value = "") {
+  return String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function getFilteredNews() {
+  const searchInput =
+    document.querySelector("#news-search-input");
+
+  const statusFilter =
+    document.querySelector("#news-status-filter");
+
+  const categoryFilter =
+    document.querySelector("#news-category-filter");
+
+  const searchTerm =
+    normalizeNewsText(searchInput?.value || "");
+
+  const selectedStatus =
+    normalizeNewsText(statusFilter?.value || "");
+
+  const selectedCategory =
+    normalizeNewsText(categoryFilter?.value || "");
+
+  return allNewsData.filter((item) => {
+    const title =
+      normalizeNewsText(item.title);
+
+    const summary =
+      normalizeNewsText(item.summary);
+
+    const content =
+      normalizeNewsText(item.content);
+
+    const category =
+      normalizeNewsText(item.category);
+
+    const status =
+      normalizeNewsText(item.publication_status);
+
+    const matchesSearch =
+      !searchTerm ||
+      title.includes(searchTerm) ||
+      summary.includes(searchTerm) ||
+      content.includes(searchTerm);
+
+    const matchesStatus =
+      !selectedStatus ||
+      status === selectedStatus;
+
+    const matchesCategory =
+      !selectedCategory ||
+      category === selectedCategory;
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesCategory
+    );
+  });
+}
+
+function updateNewsResultsCount(count) {
+  const resultsElement =
+    document.querySelector("#news-results-count");
+
+  if (!resultsElement) {
+    return;
+  }
+
+  resultsElement.textContent =
+    `${count} ${count === 1 ? "publicação" : "publicações"}`;
+}
+
+function renderNewsCards(news) {
+  const grid = document.querySelector("#news-grid");
+
+  if (!grid) {
+    return;
+  }
+
+  updateNewsResultsCount(news.length);
+
+  if (!news.length) {
+    grid.innerHTML = `
+      <div class="news-empty-state">
+        <strong>Nenhuma notícia encontrada</strong>
+        <p>
+          Tente alterar a pesquisa ou os filtros selecionados.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  grid.innerHTML = news.map((item) => {
+    const status = item.publication_status || "DRAFT";
+    const title = escapeHtml(item.title || "Sem título");
+    const summary = escapeHtml(
+      item.summary || "Esta publicação ainda não possui um resumo."
+    );
+    const category = escapeHtml(
+      item.category || "Geral"
+    );
+    const coverUrl = item.cover_url
+      ? escapeHtml(item.cover_url)
+      : "";
+
+    const imageContent = coverUrl
+      ? `
+          <img
+            src="${coverUrl}"
+            alt="${title}"
+            class="news-card-cover"
+          >
+        `
+      : `
+          <div class="news-image-placeholder">
+            📰
+          </div>
+        `;
+
+    return `
+      <article class="news-card" data-news-id="${item.id}">
+
+        <div class="news-card-image">
+          ${imageContent}
+
+          <span class="news-status ${getNewsStatusClass(status)}">
+            ${getNewsStatusLabel(status)}
+          </span>
+        </div>
+
+        <div class="news-card-body">
+
+          <div class="news-card-category">
+            ${category}
+          </div>
+
+          <h3>
+            ${title}
+          </h3>
+
+          <p>
+            ${summary}
+          </p>
+
+          <div class="news-card-footer">
+
+            <span class="news-date">
+              ${formatNewsDate(
+                item.published_at ||
+                item.scheduled_at ||
+                item.created_at
+              )}
+            </span>
+
+            <div class="news-actions">
+
+              <button
+                class="secondary-button"
+                type="button"
+                data-action="edit-news"
+                data-news-id="${item.id}"
+              >
+                Editar
+              </button>
+
+              <div class="news-menu-wrapper">
+                <button
+                  class="icon-button"
+                  type="button"
+                  data-action="news-menu"
+                  data-news-id="${item.id}"
+                  aria-label="Mais opções"
+                  aria-expanded="false"
+                >
+                  •••
+                </button>
+
+                <div
+                  class="news-dropdown"
+                  data-news-dropdown="${item.id}"
+                  hidden
+                ></div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </article>
+    `;
+  }).join("");
+}
+
+function getNewsMenuItems(news) {
+  const status = String(
+    news?.publication_status || ""
+  ).toUpperCase();
+
+  if (status === "PUBLISHED") {
+    return [
+      {
+        action: "view-news-site",
+        label: "Ver no site",
+        icon: "↗"
+      },
+      {
+        action: "edit-news",
+        label: "Editar",
+        icon: "✎"
+      },
+      {
+        action: "delete-news",
+        label: "Eliminar",
+        icon: "⌫",
+        danger: true
+      }
+    ];
+  }
+
+  if (status === "SCHEDULED") {
+    return [
+      {
+        action: "edit-news",
+        label: "Editar",
+        icon: "✎"
+      },
+      {
+        action: "view-news-schedule",
+        label: "Ver agendamento",
+        icon: "◷"
+      },
+      {
+        action: "delete-news",
+        label: "Eliminar",
+        icon: "⌫",
+        danger: true
+      }
+    ];
+  }
+
+  return [
+    {
+      action: "edit-news",
+      label: "Editar",
+      icon: "✎"
+    },
+    {
+      action: "publish-news",
+      label: "Publicar",
+      icon: "✓"
+    },
+    {
+      action: "delete-news",
+      label: "Eliminar",
+      icon: "⌫",
+      danger: true
+    }
+  ];
+}
+
+function renderNewsDropdown(news) {
+  const items = getNewsMenuItems(news);
+
+  return items
+    .map(
+      (item) => `
+        <button
+          type="button"
+          class="news-dropdown-button${item.danger ? " danger" : ""}"
+          data-menu-action="${item.action}"
+          data-news-id="${news.id}"
+        >
+          <span aria-hidden="true">${item.icon}</span>
+          <span>${item.label}</span>
+        </button>
+      `
+    )
+    .join("");
+}
+
+
+let newsToDeleteId = null;
+
+function openNewsDeleteModal(news) {
+  const modal =
+    document.querySelector("#news-delete-modal");
+
+  const titleElement =
+    document.querySelector("#news-delete-title");
+
+  const messageElement =
+    document.querySelector("#news-delete-message");
+
+  if (!modal || !news) {
+    return;
+  }
+
+  newsToDeleteId = Number(news.id);
+
+  if (titleElement) {
+    titleElement.textContent =
+      "Eliminar notícia?";
+  }
+
+  if (messageElement) {
+    messageElement.textContent =
+      `Tem a certeza de que deseja eliminar "${news.title}"? Esta ação não poderá ser desfeita.`;
+  }
+
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+
+  document.body.style.overflow = "hidden";
+
+  const cancelButton =
+    document.querySelector("#news-delete-cancel");
+
+  cancelButton?.focus();
+}
+
+function closeNewsDeleteModal() {
+  const modal =
+    document.querySelector("#news-delete-modal");
+
+  if (!modal) {
+    return;
+  }
+
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
+
+  document.body.style.overflow = "";
+
+  newsToDeleteId = null;
+}
+
+function setupNewsDeleteModal() {
+  if (
+    document.body.dataset.newsDeleteModalReady ===
+    "true"
+  ) {
+    return;
+  }
+
+  document.body.dataset.newsDeleteModalReady =
+    "true";
+
+  const closeButton =
+    document.querySelector("#news-delete-close");
+
+  const cancelButton =
+    document.querySelector("#news-delete-cancel");
+
+  const backdrop =
+    document.querySelector(
+      "[data-close-delete-modal]"
+    );
+
+  closeButton?.addEventListener(
+    "click",
+    closeNewsDeleteModal
+  );
+
+  cancelButton?.addEventListener(
+    "click",
+    closeNewsDeleteModal
+  );
+
+  backdrop?.addEventListener(
+    "click",
+    closeNewsDeleteModal
+  );
+
+  document.addEventListener("keydown", (event) => {
+    const modal =
+      document.querySelector("#news-delete-modal");
+
+    if (
+      event.key === "Escape" &&
+      modal &&
+      !modal.hidden
+    ) {
+      closeNewsDeleteModal();
+    }
+  });
+}
+
+
+async function deleteNewsFromBackend(id) {
+  const response = await apiRequest(`/news/${id}`, {
+    method: "DELETE"
+  });
+
+  if (!response?.success) {
+    throw new Error(
+      response?.message ||
+      "Não foi possível eliminar a notícia."
+    );
+  }
+
+  return response;
+}
+
+function setupNewsDeleteConfirm() {
+  if (
+    document.body.dataset.newsDeleteConfirmReady ===
+    "true"
+  ) {
+    return;
+  }
+
+  document.body.dataset.newsDeleteConfirmReady =
+    "true";
+
+  document.addEventListener("click", async (event) => {
+    const confirmButton =
+      event.target.closest("#news-delete-confirm");
+
+    if (!confirmButton) {
+      return;
+    }
+
+    if (!newsToDeleteId) {
+      return;
+    }
+
+    const newsId = newsToDeleteId;
+
+    const originalText =
+      confirmButton.textContent;
+
+    confirmButton.disabled = true;
+    confirmButton.textContent = "A eliminar...";
+
+    try {
+      await deleteNewsFromBackend(newsId);
+
+      closeNewsDeleteModal();
+
+      const message =
+        document.querySelector("#news-form-message");
+
+      if (message) {
+        message.hidden = false;
+        message.textContent =
+          "Notícia eliminada com sucesso.";
+      }
+
+      await loadNewsData();
+
+    } catch (error) {
+      console.error(
+        "Erro ao eliminar notícia:",
+        error
+      );
+
+      confirmButton.disabled = false;
+      confirmButton.textContent = originalText;
+
+      const message =
+        document.querySelector("#news-delete-message");
+
+      if (message) {
+        message.textContent =
+          error?.message ||
+          "Não foi possível eliminar a notícia. Tente novamente.";
+      }
+    }
+  });
+}
+
+function setupNewsEditActions() {
+  if (document.body.dataset.newsEditListenerReady === "true") {
+    return;
+  }
+
+  document.body.dataset.newsEditListenerReady = "true";
+
+  document.addEventListener("click", (event) => {
+    const menuButton = event.target.closest(
+      '[data-action="news-menu"]'
+    );
+
+    if (menuButton) {
+      const newsId = Number(
+        menuButton.dataset.newsId
+      );
+
+      const news = allNewsData.find(
+        (item) => Number(item.id) === newsId
+      );
+
+      if (!news) {
+        return;
+      }
+
+      const wrapper =
+        menuButton.closest(".news-menu-wrapper");
+
+      const dropdown =
+        wrapper?.querySelector(".news-dropdown");
+
+      if (!dropdown) {
+        return;
+      }
+
+      document
+        .querySelectorAll(".news-dropdown")
+        .forEach((menu) => {
+          if (menu !== dropdown) {
+            menu.hidden = true;
+
+            const otherCard =
+              menu.closest(".news-card");
+
+            otherCard?.classList.remove(
+              "menu-open"
+            );
+          }
+        });
+
+      const card =
+        menuButton.closest(".news-card");
+
+      const isOpen = !dropdown.hidden;
+
+      if (isOpen) {
+        dropdown.hidden = true;
+
+        card?.classList.remove(
+          "menu-open"
+        );
+
+        menuButton.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+      } else {
+        dropdown.innerHTML =
+          renderNewsDropdown(news);
+
+        dropdown.hidden = false;
+
+        card?.classList.add(
+          "menu-open"
+        );
+
+        menuButton.setAttribute(
+          "aria-expanded",
+          "true"
+        );
+      }
+
+      return;
+    }
+
+    const dropdownAction = event.target.closest(
+      "[data-menu-action]"
+    );
+
+    if (dropdownAction) {
+      const action =
+        dropdownAction.dataset.menuAction;
+
+      const newsId =
+        Number(dropdownAction.dataset.newsId);
+
+      document
+        .querySelectorAll(".news-dropdown")
+        .forEach((menu) => {
+          menu.hidden = true;
+
+          const card =
+            menu.closest(".news-card");
+
+          card?.classList.remove(
+            "menu-open"
+          );
+        });
+
+      document
+        .querySelectorAll('[data-action="news-menu"]')
+        .forEach((button) => {
+          button.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+        });
+
+      if (action === "edit-news") {
+        const editButton =
+          document.querySelector(
+            `[data-action="edit-news"][data-news-id="${newsId}"]`
+          );
+
+        editButton?.click();
+      }
+
+      if (action === "view-news-site") {
+        const news =
+          allNewsData.find(
+            (item) => Number(item.id) === newsId
+          );
+
+        if (news?.id) {
+          window.open(
+            `http://localhost:5173/noticias/${encodeURIComponent(news.id)}`,
+            "_blank"
+          );
+        }
+      }
+
+      if (action === "delete-news") {
+        const news =
+          allNewsData.find(
+            (item) => Number(item.id) === newsId
+          );
+
+        if (news) {
+          openNewsDeleteModal(news);
+        }
+      }
+
+      return;
+    }
+
+    const button = event.target.closest(
+      '[data-action="edit-news"]'
+    );
+
+    if (!button) {
+      const clickedInsideMenu =
+        event.target.closest(".news-dropdown");
+
+      if (!clickedInsideMenu) {
+        document
+          .querySelectorAll(".news-dropdown")
+          .forEach((menu) => {
+            menu.hidden = true;
+          });
+
+        document
+          .querySelectorAll('[data-action="news-menu"]')
+          .forEach((menuButton) => {
+            menuButton.setAttribute(
+              "aria-expanded",
+              "false"
+            );
+          });
+      }
+
+      return;
+    }
+
+    const newsId = Number(button.dataset.newsId);
+
+    const news = allNewsData.find(
+      (item) => Number(item.id) === newsId
+    );
+
+    if (!news) {
+      return;
+    }
+
+    const modal =
+      document.querySelector("#news-create-modal");
+
+    const form =
+      document.querySelector("#news-create-form");
+
+    if (!modal || !form) {
+      return;
+    }
+
+    const titleInput =
+      form.querySelector("#news-title");
+
+    const summaryInput =
+      form.querySelector("#news-summary");
+
+    const contentInput =
+      form.querySelector("#news-content");
+
+    const categoryInput =
+      form.querySelector("#news-category");
+
+    const authorInput =
+      form.querySelector("#news-author");
+
+    const visibilityInput =
+      form.querySelector("#news-visibility");
+
+    const statusInput =
+      form.querySelector("#news-status");
+
+    const scheduledInput =
+      form.querySelector("#news-scheduled-at");
+
+    const scheduledField =
+      form.querySelector("#news-scheduled-at-field");
+
+    const coverUrlInput =
+      form.querySelector("#news-cover-url");
+
+    const fileInput =
+      form.querySelector("#news-cover-file");
+
+    const preview =
+      form.querySelector("#news-cover-preview");
+
+    const eyebrow =
+      modal.querySelector(".news-modal-eyebrow");
+
+    const modalTitle =
+      modal.querySelector("#news-create-modal-title");
+
+    const modalDescription =
+      modal.querySelector(".news-modal-header p");
+
+    const draftButton =
+      modal.querySelector('[data-news-submit="draft"]');
+
+    const publishButton =
+      modal.querySelector('[data-news-submit="publish"]');
+
+    if (eyebrow) {
+      eyebrow.textContent = "EDITAR PUBLICAÇÃO";
+    }
+
+    if (modalTitle) {
+      modalTitle.textContent = "Editar notícia";
+    }
+
+    if (modalDescription) {
+      modalDescription.textContent =
+        "Atualize as informações da notícia e guarde as alterações.";
+    }
+
+    if (draftButton) {
+      draftButton.textContent = "Guardar alterações";
+    }
+
+    if (publishButton) {
+      publishButton.textContent = "Publicar alterações";
+    }
+
+    if (titleInput) {
+      titleInput.value = news.title || "";
+    }
+
+    if (summaryInput) {
+      summaryInput.value = news.summary || "";
+    }
+
+    if (contentInput) {
+      contentInput.value = news.content || "";
+    }
+
+    if (categoryInput) {
+      categoryInput.value = news.category || "";
+    }
+
+    if (authorInput) {
+      authorInput.value = news.author || "";
+    }
+
+    if (visibilityInput) {
+      visibilityInput.value =
+        news.visibility || "SITE_AND_APP";
+    }
+
+    if (statusInput) {
+      statusInput.value =
+        news.publication_status || "DRAFT";
+    }
+
+    if (scheduledInput) {
+      scheduledInput.value = "";
+
+      if (news.scheduled_at) {
+        const date = new Date(news.scheduled_at);
+
+        if (!Number.isNaN(date.getTime())) {
+          const localDate = new Date(
+            date.getTime() -
+            date.getTimezoneOffset() * 60000
+          );
+
+          scheduledInput.value =
+            localDate.toISOString().slice(0, 16);
+        }
+      }
+    }
+
+    if (scheduledField) {
+      scheduledField.hidden =
+        news.publication_status !== "SCHEDULED";
+    }
+
+    if (coverUrlInput) {
+      coverUrlInput.value =
+        news.cover_url || "";
+    }
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    if (preview) {
+      if (news.cover_url) {
+        preview.innerHTML = `
+          <img
+            src="${news.cover_url}"
+            alt="Imagem atual da notícia"
+          />
+        `;
+      } else {
+        preview.innerHTML = `
+          <span>🖼️</span>
+          <small>
+            A notícia não possui imagem de capa.
+          </small>
+        `;
+      }
+    }
+
+    form.dataset.editingNewsId = String(news.id);
+
+    modal.classList.add("is-visible");
+    modal.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+  });
+}
+
+
+function setupNewsSearchAndFilters() {
+  const searchInput =
+    document.querySelector("#news-search-input");
+
+  const statusFilter =
+    document.querySelector("#news-status-filter");
+
+  const categoryFilter =
+    document.querySelector("#news-category-filter");
+
+  if (!searchInput || !statusFilter || !categoryFilter) {
+    return;
+  }
+
+  const applyFilters = () => {
+    const filteredNews = getFilteredNews();
+
+    renderNewsCards(filteredNews);
+  };
+
+  searchInput.addEventListener(
+    "input",
+    applyFilters
+  );
+
+  statusFilter.addEventListener(
+    "change",
+    applyFilters
+  );
+
+  categoryFilter.addEventListener(
+    "change",
+    applyFilters
+  );
+}
+
+async function loadNewsData() {
+  const totalElement = document.querySelector("#news-total");
+  const publishedElement = document.querySelector("#news-published");
+  const draftsElement = document.querySelector("#news-drafts");
+  const scheduledElement = document.querySelector("#news-scheduled");
+  const resultsElement = document.querySelector("#news-results-count");
+  const grid = document.querySelector("#news-grid");
+
+  if (
+    !totalElement ||
+    !publishedElement ||
+    !draftsElement ||
+    !scheduledElement
+  ) {
+    return;
+  }
+
+  if (grid) {
+    grid.innerHTML = `
+      <div class="news-loading-state">
+        A carregar notícias...
+      </div>
+    `;
+  }
+
+  try {
+    const news = await getNews();
+
+    allNewsData = news;
+
+    const total = news.length;
+
+    const published = news.filter(
+      (item) => item.publication_status === "PUBLISHED"
+    ).length;
+
+    const drafts = news.filter(
+      (item) => item.publication_status === "DRAFT"
+    ).length;
+
+    const scheduled = news.filter(
+      (item) => item.publication_status === "SCHEDULED"
+    ).length;
+
+    totalElement.textContent = total;
+    publishedElement.textContent = published;
+    draftsElement.textContent = drafts;
+    scheduledElement.textContent = scheduled;
+
+    if (resultsElement) {
+      resultsElement.textContent =
+        `${total} ${total === 1 ? "publicação" : "publicações"}`;
+    }
+
+    renderNewsCards(news);
+
+    setupNewsSearchAndFilters();
+    setupNewsEditActions();
+
+    console.log("✓ Notícias carregadas:", news);
+  } catch (error) {
+    console.error("Erro ao carregar notícias:", error);
+
+    totalElement.textContent = "—";
+    publishedElement.textContent = "—";
+    draftsElement.textContent = "—";
+    scheduledElement.textContent = "—";
+
+    if (resultsElement) {
+      resultsElement.textContent =
+        "Não foi possível carregar as publicações";
+    }
+
+    if (grid) {
+      grid.innerHTML = `
+        <div class="news-error-state">
+          <strong>Não foi possível carregar as notícias.</strong>
+          <p>Verifique se o servidor está ligado e tente novamente.</p>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderCurrentPage() {
+  const currentRoute = getCurrentRoute();
+
+  let content = "";
+
+  switch (currentRoute.page) {
+    case "Dashboard":
+      content = Dashboard();
+      break;
+
+    case "Noticias":
+      content = Noticias();
+      break;
+
+    case "Eventos":
+      content = Eventos();
+      break;
+
+    case "Galeria":
+      content = Galeria();
+      break;
+
+    case "Videos":
+      content = Videos();
+      break;
+
+    case "Mensagens":
+      content = Mensagens();
+      break;
+
+    case "Configuracoes":
+      content = Configuracoes.render();
+      break;
+
+    case "Conta":
+      content = `
+        <section class="communication-page">
+          <h1>Minha conta</h1>
+          <p>Página da conta em construção.</p>
+        </section>
+      `;
+      break;
+
+    default:
+      content = Dashboard();
+  }
+
+  app.innerHTML = CommunicationLayout(content, currentRoute.path);
+
+  if (currentRoute.name === "Configuracoes") {
+    Configuracoes.init();
+  }
+
+  if (currentRoute.name === "Mensagens") {
+    setupMessagesPage();
+  }
+
+  setupMobileMenu();
+  setupPublicationModal();
+  setupNewsModal();
+  setupNewsDeleteModal();
+  setupNewsDeleteConfirm();
+
+  if (currentRoute.page === "Dashboard") {
+    loadDashboardStats();
+  }
+
+  if (currentRoute.page === "Noticias") {
+    loadNewsData();
+  }
+
+  if (currentRoute.page === "Eventos") {
+    loadEventsData();
+  }
+  if (currentRoute.page === "Videos") {
+    setupVideosPage();
+  }
+}
+
+function setupMobileMenu() {
+  const menuButton = document.querySelector("#sidebar-open");
+  const sidebar = document.querySelector("#communication-sidebar");
+  const sidebarClose = document.querySelector("#sidebar-close");
+  const overlay = document.querySelector("#communication-overlay");
+
+  if (!menuButton || !sidebar || !sidebarClose || !overlay) {
+    return;
+  }
+
+  function openSidebar() {
+    sidebar.classList.add("is-open");
+    overlay.classList.add("is-visible");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("is-open");
+    overlay.classList.remove("is-visible");
+    overlay.setAttribute("aria-hidden", "true");
+  }
+
+  menuButton.addEventListener("click", openSidebar);
+  sidebarClose.addEventListener("click", closeSidebar);
+  overlay.addEventListener("click", closeSidebar);
+
+  sidebar.querySelectorAll("a[data-route]").forEach((item) => {
+    item.addEventListener("click", closeSidebar);
+  });
+}
+
+function setupNewsModal() {
+  const openButton = document.querySelector(
+    '[data-action="new-news"]'
+  );
+
+  const modal = document.querySelector(
+    "#news-create-modal"
+  );
+
+  const closeButton = document.querySelector(
+    "#news-create-modal-close"
+  );
+
+  const cancelButton = document.querySelector(
+    "#news-create-cancel"
+  );
+
+  const form = document.querySelector(
+    "#news-create-form"
+  );
+
+  const statusSelect = document.querySelector(
+    "#news-status"
+  );
+
+  const scheduledField = document.querySelector(
+    "#news-scheduled-at-field"
+  );
+
+  const fileInput = document.querySelector(
+    "#news-cover-file"
+  );
+
+  const coverUrlInput = document.querySelector(
+    "#news-cover-url"
+  );
+
+  const coverLinkButton = document.querySelector(
+    "#news-cover-link-button"
+  );
+
+  const preview = document.querySelector(
+    "#news-cover-preview"
+  );
+
+  if (
+    !openButton ||
+    !modal ||
+    !closeButton ||
+    !cancelButton ||
+    !form
+  ) {
+    return;
+  }
+
+  let selectedObjectUrl = null;
+
+  function closeModal() {
+    modal.classList.remove("is-visible");
+    modal.setAttribute("aria-hidden", "true");
+
+    document.body.style.overflow = "";
+  }
+
+  let editingNewsId = null;
+
+  function setModalMode(mode, news = null) {
+    const eyebrow = modal.querySelector(".news-modal-eyebrow");
+    const titleElement = modal.querySelector("#news-create-modal-title");
+    const description = modal.querySelector(".news-modal-header p");
+
+    const draftButton = modal.querySelector(
+      '[data-news-submit="draft"]'
+    );
+
+    const publishButton = modal.querySelector(
+      '[data-news-submit="publish"]'
+    );
+
+    if (mode === "edit" && news) {
+      if (eyebrow) {
+        eyebrow.textContent = "EDITAR PUBLICAÇÃO";
+      }
+
+      if (titleElement) {
+        titleElement.textContent = "Editar notícia";
+      }
+
+      if (description) {
+        description.textContent =
+          "Atualize as informações da notícia e guarde as alterações.";
+      }
+
+      if (draftButton) {
+        draftButton.textContent = "Guardar alterações";
+      }
+
+      if (publishButton) {
+        publishButton.textContent = "Publicar alterações";
+      }
+
+      editingNewsId = Number(news.id);
+      return;
+    }
+
+    if (eyebrow) {
+      eyebrow.textContent = "NOVA PUBLICAÇÃO";
+    }
+
+    if (titleElement) {
+      titleElement.textContent = "Criar notícia";
+    }
+
+    if (description) {
+      description.textContent =
+        "Preencha as informações da notícia e escolha como pretende publicá-la.";
+    }
+
+    if (draftButton) {
+      draftButton.textContent = "Guardar rascunho";
+    }
+
+    if (publishButton) {
+      publishButton.textContent = "Publicar notícia";
+    }
+
+    editingNewsId = null;
+  }
+
+  function fillNewsForm(news) {
+    const titleInput =
+      form.querySelector("#news-title");
+
+    const summaryInput =
+      form.querySelector("#news-summary");
+
+    const contentInput =
+      form.querySelector("#news-content");
+
+    const categoryInput =
+      form.querySelector("#news-category");
+
+    const authorInput =
+      form.querySelector("#news-author");
+
+    const visibilityInput =
+      form.querySelector("#news-visibility");
+
+    const statusInput =
+      form.querySelector("#news-status");
+
+    const scheduledInput =
+      form.querySelector("#news-scheduled-at");
+
+    const coverUrlInputElement =
+      form.querySelector("#news-cover-url");
+
+    if (titleInput) {
+      titleInput.value = news.title || "";
+    }
+
+    if (summaryInput) {
+      summaryInput.value = news.summary || "";
+    }
+
+    if (contentInput) {
+      contentInput.value = news.content || "";
+    }
+
+    if (categoryInput) {
+      categoryInput.value = news.category || "";
+    }
+
+    if (authorInput) {
+      authorInput.value = news.author || "";
+    }
+
+    if (visibilityInput) {
+      visibilityInput.value =
+        news.visibility || "SITE_AND_APP";
+    }
+
+    if (statusInput) {
+      statusInput.value =
+        news.publication_status || "DRAFT";
+    }
+
+    if (scheduledInput) {
+      const scheduledAt = news.scheduled_at;
+
+      if (scheduledAt) {
+        const date = new Date(scheduledAt);
+
+        if (!Number.isNaN(date.getTime())) {
+          const localDate = new Date(
+            date.getTime() -
+            date.getTimezoneOffset() * 60000
+          );
+
+          scheduledInput.value =
+            localDate.toISOString().slice(0, 16);
+        }
+      } else {
+        scheduledInput.value = "";
+      }
+    }
+
+    if (coverUrlInputElement) {
+      coverUrlInputElement.value =
+        news.cover_url || "";
+    }
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+      selectedObjectUrl = null;
+    }
+
+    if (news.cover_url) {
+      showPreview(news.cover_url);
+    } else {
+      resetPreview();
+    }
+
+    updateScheduledField();
+  }
+
+  function openModal(mode = "create", news = null) {
+    if (mode === "edit" && news) {
+      setModalMode("edit", news);
+      fillNewsForm(news);
+    } else {
+      setModalMode("create");
+    }
+
+    modal.classList.add("is-visible");
+    modal.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+  }
+
+  function updateScheduledField() {
+    if (!statusSelect || !scheduledField) {
+      return;
+    }
+
+    const isScheduled =
+      statusSelect.value === "SCHEDULED";
+
+    scheduledField.hidden = !isScheduled;
+  }
+
+  function showPreview(src) {
+    if (!preview || !src) {
+      return;
+    }
+
+    preview.innerHTML = `
+      <img
+        src="${src}"
+        alt="Pré-visualização da imagem de capa"
+      />
+    `;
+  }
+
+  function resetPreview() {
+    if (!preview) {
+      return;
+    }
+
+    preview.innerHTML = `
+      <span>🖼️</span>
+      <small>
+        A pré-visualização aparecerá aqui
+      </small>
+    `;
+  }
+
+  function handleFileChange() {
+    const file = fileInput?.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      return;
+    }
+
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+    }
+
+    selectedObjectUrl = URL.createObjectURL(file);
+
+    showPreview(selectedObjectUrl);
+
+    if (coverUrlInput) {
+      coverUrlInput.value = "";
+    }
+  }
+
+  function handleCoverLink() {
+    const url = coverUrlInput?.value.trim();
+
+    if (!url) {
+      return;
+    }
+
+    try {
+      new URL(url);
+    } catch {
+      coverUrlInput.focus();
+      return;
+    }
+
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+      selectedObjectUrl = null;
+    }
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    showPreview(url);
+  }
+
+  openButton.addEventListener("click", () => {
+    form.reset();
+    form.removeAttribute("data-editing-news-id");
+    resetPreview();
+    setModalMode("create");
+    updateScheduledField();
+    openModal("create");
+  });
+
+  closeButton.addEventListener("click", closeModal);
+
+  cancelButton.addEventListener("click", closeModal);
+
+  modal
+    .querySelectorAll("[data-close-news-modal]")
+    .forEach((element) => {
+      element.addEventListener("click", closeModal);
+    });
+
+  if (statusSelect) {
+    statusSelect.addEventListener(
+      "change",
+      updateScheduledField
+    );
+
+    updateScheduledField();
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener(
+      "change",
+      handleFileChange
+    );
+  }
+
+  if (coverLinkButton) {
+    coverLinkButton.addEventListener(
+      "click",
+      handleCoverLink
+    );
+  }
+
+  if (coverUrlInput) {
+    coverUrlInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleCoverLink();
+      }
+    });
+  }
+
+  form.addEventListener("reset", () => {
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+      selectedObjectUrl = null;
+    }
+
+    resetPreview();
+
+    if (scheduledField) {
+      scheduledField.hidden = true;
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      modal.classList.contains("is-visible")
+    ) {
+      closeModal();
+    }
+  });
+
+  async function submitNews(submitType) {
+    const formData = new FormData(form);
+
+    const title = formData.get("title")?.trim() || "";
+    const summary = formData.get("summary")?.trim() || "";
+    const content = formData.get("content")?.trim() || "";
+    const category = formData.get("category")?.trim() || "";
+    const author = formData.get("author")?.trim() || "";
+    const visibility =
+      formData.get("visibility") || "SITE_AND_APP";
+
+    const status =
+      submitType === "publish"
+        ? "PUBLISHED"
+        : formData.get("status") || "DRAFT";
+
+    const coverUrl =
+      formData.get("coverUrl")?.trim() || "";
+
+    const scheduledAt =
+      formData.get("scheduledAt") || "";
+
+    const messageElement = document.querySelector(
+      "#news-form-message"
+    );
+
+    if (!title || !content) {
+      if (messageElement) {
+        messageElement.textContent =
+          "Preencha o título e o conteúdo da notícia.";
+        messageElement.hidden = false;
+      }
+
+      return;
+    }
+
+    if (status === "SCHEDULED" && !scheduledAt) {
+      if (messageElement) {
+        messageElement.textContent =
+          "Escolha a data e hora para agendar a publicação.";
+        messageElement.hidden = false;
+      }
+
+      return;
+    }
+
+    const payload = new FormData();
+
+    payload.append("title", title);
+    payload.append("content", content);
+    payload.append("visibility", visibility);
+    payload.append("status", status);
+
+    payload.append("summary", summary);
+    payload.append("category", category);
+    payload.append("author", author);
+
+    const coverFile =
+      form.querySelector("#news-cover-file")?.files?.[0];
+
+    if (coverFile) {
+      payload.append("coverFile", coverFile);
+    } else {
+      payload.append("coverUrl", coverUrl);
+    }
+
+    if (status === "SCHEDULED") {
+      payload.append(
+        "scheduledAt",
+        new Date(scheduledAt).toISOString()
+      );
+    }
+
+    if (status === "PUBLISHED") {
+      payload.append(
+        "publishedAt",
+        new Date().toISOString()
+      );
+    }
+
+    const submitButtons = form.querySelectorAll(
+      "[data-news-submit]"
+    );
+
+    submitButtons.forEach((button) => {
+      button.disabled = true;
+    });
+
+    if (messageElement) {
+      messageElement.hidden = true;
+      messageElement.classList.remove("success");
+      messageElement.textContent = "";
+    }
+
+    try {
+      const editingId =
+        form.dataset.editingNewsId;
+
+      const requestPath =
+        editingId
+          ? `/news/${editingId}`
+          : "/news";
+
+      const requestMethod =
+        editingId
+          ? "PUT"
+          : "POST";
+
+      await apiRequest(requestPath, {
+        method: requestMethod,
+        body: payload
+      });
+
+      if (messageElement) {
+        messageElement.textContent =
+          status === "PUBLISHED"
+            ? "Notícia publicada com sucesso."
+            : status === "SCHEDULED"
+              ? "Notícia agendada com sucesso."
+              : "Rascunho guardado com sucesso.";
+
+        messageElement.classList.add("success");
+        messageElement.hidden = false;
+      }
+
+      setTimeout(() => {
+        closeModal();
+        form.removeAttribute("data-editing-news-id");
+        window.location.reload();
+      }, 700);
+
+    } catch (error) {
+      if (messageElement) {
+        messageElement.textContent =
+          error?.message ||
+          "Não foi possível guardar a notícia.";
+
+        messageElement.classList.remove("success");
+        messageElement.hidden = false;
+      }
+    } finally {
+      submitButtons.forEach((button) => {
+        button.disabled = false;
+      });
+    }
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const submitter =
+      event.submitter ||
+      document.activeElement;
+
+    const submitType =
+      submitter?.dataset?.newsSubmit ||
+      "draft";
+
+    submitNews(submitType);
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+    }
+  });
+}
+
+function setupPublicationModal() {
+  const openButton = document.querySelector("#dashboard-new-publication");
+  const modal = document.querySelector("#publication-modal");
+  const closeButton = document.querySelector("#publication-modal-close");
+
+  if (!openButton || !modal || !closeButton) {
+    return;
+  }
+
+  const closeModal = () => {
+    modal.classList.remove("is-visible");
+    modal.setAttribute("aria-hidden", "true");
+  };
+
+  const openModal = () => {
+    modal.classList.add("is-visible");
+    modal.setAttribute("aria-hidden", "false");
+  };
+
+  openButton.addEventListener("click", openModal);
+  closeButton.addEventListener("click", closeModal);
+
+  modal.querySelectorAll("[data-close-publication-modal]").forEach((element) => {
+    element.addEventListener("click", closeModal);
+  });
+
+  modal.querySelectorAll("[data-publication-route]").forEach((option) => {
+    option.addEventListener("click", () => {
+      const route = option.dataset.publicationRoute;
+
+      closeModal();
+
+      if (route) {
+        navigate(route);
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+      closeModal();
+    }
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-route]");
+
+  if (!target) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const route = target.dataset.route;
+
+  if (route) {
+    navigate(route);
+  }
+});
+
+async function startCommunicationApp() {
+  if (!isAuthenticated()) {
+    app.innerHTML = Login();
+    setupLogin();
+    return;
+  }
+
+  try {
+    await getCurrentUser();
+
+    startRouter(renderCurrentPage);
+  } catch (error) {
+    logout();
+
+    app.innerHTML = Login();
+    setupLogin();
+  }
+}
+
+startCommunicationApp();

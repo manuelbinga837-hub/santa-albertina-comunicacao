@@ -1,0 +1,199 @@
+const Configuracoes = {
+  render() {
+    return `
+      <section class="configuracoes-page">
+
+        <div class="configuracoes-hero">
+          <div class="configuracoes-hero-overlay"></div>
+
+          <div class="configuracoes-hero-content">
+            <span class="configuracoes-hero-label">PAINEL DE COMUNICAÇÃO</span>
+            <h1>Configurações</h1>
+            <p>Gerencie as informações principais da Escola Santa Albertina.</p>
+          </div>
+        </div>
+
+        <div class="configuracoes-content">
+
+          <form id="configuracoes-form">
+
+            <section class="config-card">
+              <div class="config-card-header">
+                <div>
+                  <span class="config-section-number">01</span>
+                  <h2>Identidade da escola</h2>
+                  <p>Informações principais apresentadas no sistema.</p>
+                </div>
+              </div>
+
+              <div class="config-grid">
+
+                <div class="config-field config-field-full">
+                  <label for="schoolName">Nome da escola</label>
+                  <input
+                    type="text"
+                    id="schoolName"
+                    name="schoolName"
+                    value="Escola Santa Albertina"
+                    placeholder="Nome da escola"
+                  />
+                </div>
+
+                <div class="config-field config-field-full">
+                  <label for="logoUrl">URL do logótipo</label>
+                  <input
+                    type="url"
+                    id="logoUrl"
+                    name="logoUrl"
+                    value="https://example.com/logo-santa-albertina.png"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div class="config-field config-field-full">
+                  <label for="description">Descrição</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows="5"
+                    placeholder="Descrição da escola..."
+                  >Escola Santa Albertina — Educação, tecnologia e excelência.</textarea>
+                </div>
+
+              </div>
+            </section>
+
+            <section class="config-card">
+              <div class="config-card-header">
+                <div>
+                  <span class="config-section-number">02</span>
+                  <h2>Contactos</h2>
+                  <p>Dados utilizados para contacto com a escola.</p>
+                </div>
+              </div>
+
+              <div class="config-grid">
+
+                <div class="config-field">
+                  <label for="phone">Telefone</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value="+244 923 000 001"
+                    placeholder="+244 ..."
+                  />
+                </div>
+
+                <div class="config-field">
+                  <label for="email">E-mail</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="contacto@santaalbertina.ao"
+                    placeholder="email@escola.ao"
+                  />
+                </div>
+
+                <div class="config-field config-field-full">
+                  <label for="website">Website</label>
+                  <input
+                    type="url"
+                    id="website"
+                    name="website"
+                    value="https://santaalbertina.ao"
+                    placeholder="https://..."
+                  />
+                </div>
+
+              </div>
+            </section>
+
+            <section class="config-card">
+              <div class="config-card-header">
+                <div>
+                  <span class="config-section-number">03</span>
+                  <h2>Localização e horário</h2>
+                  <p>Localização física e horário de funcionamento.</p>
+                </div>
+              </div>
+
+              <div class="config-grid">
+
+                <div class="config-field config-field-full">
+                  <label for="address">Morada</label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value="Talatona, Luanda, Angola"
+                    placeholder="Morada da escola"
+                  />
+                </div>
+
+                <div class="config-field config-field-full">
+                  <label for="openingHours">Horário de funcionamento</label>
+                  <input
+                    type="text"
+                    id="openingHours"
+                    name="openingHours"
+                    value="Segunda a Sexta: 07:00 às 17:00"
+                    placeholder="Ex.: Segunda a Sexta: 07:00 às 17:00"
+                  />
+                </div>
+
+              </div>
+            </section>
+
+            <section class="config-card">
+              <div class="config-card-header">
+                <div>
+                  <span class="config-section-number">04</span>
+                  <h2>Redes sociais</h2>
+                  <p>Perfis oficiais da Escola Santa Albertina.</p>
+                </div>
+              </div>
+
+              <div class="config-grid">
+
+                <div class="config-field">
+                  <label for="facebook">Facebook</label>
+                  <input
+                    type="text"
+                    id="facebook"
+                    name="facebook"
+                    value="santaalbertina"
+                    placeholder="Nome ou URL do perfil"
+                  />
+                </div>
+
+                <div class="config-field">
+                  <label for="instagram">Instagram</label>
+                  <input
+                    type="text"
+                    id="instagram"
+                    name="instagram"
+                    value="santaalbertina"
+                    placeholder="Nome ou URL do perfil"
+                  />
+                </div>
+
+              </div>
+            </section>
+
+            <div class="config-actions">
+              <button type="submit" class="config-save-button">
+                Guardar alterações
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </section>
+    `;
+  }
+};
+
+export default Configuracoes;

@@ -1,0 +1,333 @@
+import { navigate, startRouter, getCurrentRoute } from "./router/router.js";
+import { CommunicationLayout } from "./layouts/CommunicationLayout.js";
+import { Noticias } from "./pages/Noticias/Noticias.js";
+
+import "./styles/main.css";
+
+const app = document.querySelector("#app");
+
+function Dashboard() {
+  return `
+<section class="dashboard">
+
+        <div class="hero">
+
+          <div class="hero-content">
+            <span class="eyebrow">CENTRAL DE COMUNICAÇÃO</span>
+
+            <h1>
+              Dê voz à comunidade
+              <strong>Santa Albertina.</strong>
+            </h1>
+
+            <p>
+              Crie, publique e acompanhe tudo o que a escola
+              comunica à sua comunidade.
+            </p>
+
+            <div class="hero-actions">
+              <button class="primary-button">
+                <span data-route="/noticias">+ Nova publicação</span>
+              </button>
+
+              <button class="secondary-button">
+                Ver site público
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="sound-wave wave-one"></div>
+            <div class="sound-wave wave-two"></div>
+            <div class="sound-wave wave-three"></div>
+
+            <div class="microphone">
+              <div class="mic-head"></div>
+              <div class="mic-body"></div>
+              <div class="mic-base"></div>
+            </div>
+
+            <div class="visual-orbit orbit-one"></div>
+            <div class="visual-orbit orbit-two"></div>
+          </div>
+
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <span class="section-label">VISÃO GERAL</span>
+            <h2>Conteúdo publicado</h2>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+
+          <article class="stat-card">
+            <div class="stat-icon news-icon">▤</div>
+            <div>
+              <span>Notícias</span>
+              <strong>24</strong>
+              <small>publicadas</small>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon event-icon">▣</div>
+            <div>
+              <span>Eventos</span>
+              <strong>8</strong>
+              <small>publicados</small>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon gallery-icon">▧</div>
+            <div>
+              <span>Fotografias</span>
+              <strong>56</strong>
+              <small>na galeria</small>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon video-icon">▶</div>
+            <div>
+              <span>Vídeos</span>
+              <strong>7</strong>
+              <small>publicados</small>
+            </div>
+          </article>
+
+        </div>
+
+        <div class="dashboard-columns">
+
+          <section class="panel-card activity-card">
+            <div class="panel-header">
+              <div>
+                <span class="section-label">RECENTE</span>
+                <h2>Atividade recente</h2>
+              </div>
+
+              <button class="text-button">Ver tudo</button>
+            </div>
+
+            <div class="activity-list">
+
+              <article class="activity-item">
+                <div class="activity-icon">▤</div>
+                <div class="activity-content">
+                  <strong>Nova notícia publicada</strong>
+                  <p>Início das actividades escolares</p>
+                  <small>Há 15 minutos</small>
+                </div>
+              </article>
+
+              <article class="activity-item">
+                <div class="activity-icon">▣</div>
+                <div class="activity-content">
+                  <strong>Novo evento criado</strong>
+                  <p>Reunião de encarregados</p>
+                  <small>Há 1 hora</small>
+                </div>
+              </article>
+
+              <article class="activity-item">
+                <div class="activity-icon">▶</div>
+                <div class="activity-content">
+                  <strong>Novo vídeo publicado</strong>
+                  <p>Actividade escolar</p>
+                  <small>Há 3 horas</small>
+                </div>
+              </article>
+
+              <article class="activity-item">
+                <div class="activity-icon">✉</div>
+                <div class="activity-content">
+                  <strong>Nova mensagem recebida</strong>
+                  <p>João Manuel enviou uma mensagem</p>
+                  <small>Há 4 horas</small>
+                </div>
+              </article>
+
+            </div>
+          </section>
+
+          <section class="panel-card quick-card">
+
+            <div class="panel-header">
+              <div>
+                <span class="section-label">ACESSO RÁPIDO</span>
+                <h2>Criar conteúdo</h2>
+              </div>
+            </div>
+
+            <div class="quick-actions">
+
+              <button class="quick-action" data-route="/noticias">
+                <span>▤</span>
+                <strong>Nova notícia</strong>
+                <small>Publicar informação</small>
+              </button>
+
+              <button class="quick-action" data-route="/eventos">
+                <span>▣</span>
+                <strong>Novo evento</strong>
+                <small>Criar evento</small>
+              </button>
+
+              <button class="quick-action" data-route="/galeria">
+                <span>▧</span>
+                <strong>Nova galeria</strong>
+                <small>Adicionar fotografias</small>
+              </button>
+
+              <button class="quick-action" data-route="/videos">
+                <span>▶</span>
+                <strong>Novo vídeo</strong>
+                <small>Adicionar vídeo</small>
+              </button>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+  `;
+}
+
+function renderCurrentPage() {
+  const currentRoute = getCurrentRoute();
+
+  let content = "";
+
+  switch (currentRoute.page) {
+    case "Dashboard":
+      content = Dashboard();
+      break;
+
+    case "Noticias":
+      content = Noticias();
+      break;
+
+    case "Eventos":
+      content = `
+        <section class="communication-page">
+          <h1>Eventos</h1>
+          <p>Página de eventos em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Galeria":
+      content = `
+        <section class="communication-page">
+          <h1>Galeria</h1>
+          <p>Página de galeria em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Videos":
+      content = `
+        <section class="communication-page">
+          <h1>Vídeos</h1>
+          <p>Página de vídeos em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Mensagens":
+      content = `
+        <section class="communication-page">
+          <h1>Mensagens</h1>
+          <p>Página de mensagens em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Configuracoes":
+      content = `
+        <section class="communication-page">
+          <h1>Configurações</h1>
+          <p>Página de configurações em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Conta":
+      content = `
+        <section class="communication-page">
+          <h1>Minha conta</h1>
+          <p>Página da conta em construção.</p>
+        </section>
+      `;
+      break;
+
+    default:
+      content = Dashboard();
+  }
+
+  app.innerHTML = CommunicationLayout(content);
+
+  updateActiveNavigation(currentRoute.path);
+  setupMobileMenu();
+}
+
+function updateActiveNavigation(path) {
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.classList.toggle(
+      "active",
+      item.dataset.route === path
+    );
+  });
+}
+
+function setupMobileMenu() {
+  const menuButton = document.querySelector("#menuButton");
+  const sidebar = document.querySelector("#sidebar");
+  const sidebarClose = document.querySelector("#sidebarClose");
+  const sidebarOverlay = document.querySelector("#sidebarOverlay");
+
+  if (!menuButton || !sidebar || !sidebarClose || !sidebarOverlay) {
+    return;
+  }
+
+  function openSidebar() {
+    sidebar.classList.add("open");
+    sidebarOverlay.classList.add("visible");
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    sidebarOverlay.classList.remove("visible");
+  }
+
+  menuButton.addEventListener("click", openSidebar);
+  sidebarClose.addEventListener("click", closeSidebar);
+  sidebarOverlay.addEventListener("click", closeSidebar);
+
+  document.querySelectorAll(".nav-item[data-route]").forEach((item) => {
+    item.addEventListener("click", closeSidebar);
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-route]");
+
+  if (!target) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const route = target.dataset.route;
+
+  if (route) {
+    navigate(route);
+  }
+});
+
+startRouter(renderCurrentPage);

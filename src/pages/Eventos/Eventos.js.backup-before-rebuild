@@ -1,0 +1,119 @@
+import "./Eventos.css";
+
+export function Eventos() {
+  return `
+    <section class="events-page">
+
+      <!-- HERO -->
+      <section class="events-hero">
+        <div class="events-hero-content">
+          <span class="events-eyebrow">EVENTOS</span>
+
+          <h1>
+            Momentos que aproximam a comunidade Santa Albertina.
+          </h1>
+
+          <p>
+            Festas, reuniões, celebrações, atividades e encontros
+            que fazem parte da vida escolar.
+          </p>
+
+          <div class="events-hero-tags">
+            <span>Festas</span>
+            <span>Reuniões</span>
+            <span>Celebrações</span>
+            <span>Atividades</span>
+          </div>
+        </div>
+
+        <img
+          class="events-hero-background"
+          src="https://images.pexels.com/photos/36286302/pexels-photo-36286302.jpeg"
+          alt=""
+          aria-hidden="true"
+        />
+      </section>
+
+      <!-- CABEÇALHO -->
+      <section class="events-header">
+        <div>
+          <span class="events-section-eyebrow">AGENDA ESCOLAR</span>
+          <h2>Eventos</h2>
+          <p>
+            Organize e publique os próximos momentos da escola.
+          </p>
+        </div>
+
+        <button
+          class="primary-button events-new-button"
+          type="button"
+          id="events-new-button"
+        >
+          <span>+</span>
+          Novo evento
+        </button>
+      </section>
+
+      <!-- PESQUISA E FILTROS -->
+      <section class="events-toolbar">
+        <div class="events-search">
+          <span class="events-search-icon" aria-hidden="true">⌕</span>
+
+          <input
+            id="events-search-input"
+            type="search"
+            placeholder="Pesquisar eventos..."
+            aria-label="Pesquisar eventos"
+          />
+        </div>
+
+        <div class="events-filters">
+          <select
+            id="events-status-filter"
+            aria-label="Filtrar eventos por estado"
+          >
+            <option value="">Todos os estados</option>
+            <option value="published">Publicados</option>
+            <option value="draft">Rascunhos</option>
+            <option value="scheduled">Agendados</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- LISTA DE EVENTOS -->
+      <section class="events-content">
+        <div
+          class="events-grid"
+          id="events-grid"
+        >
+          <!-- Os eventos reais serão carregados aqui -->
+        </div>
+
+        <div
+          class="events-empty"
+          id="events-empty"
+        >
+          <div class="events-empty-icon">
+            ◷
+          </div>
+
+          <h3>Ainda não existem eventos</h3>
+
+          <p>
+            Quando um evento for criado, ele aparecerá aqui
+            para ser gerido pela Central de Comunicação.
+          </p>
+
+          <button
+            class="secondary-button"
+            type="button"
+            id="events-empty-new-button"
+          >
+            + Criar primeiro evento
+          </button>
+        </div>
+      </section>
+
+    </section>
+  `;
+}

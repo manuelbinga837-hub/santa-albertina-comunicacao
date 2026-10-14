@@ -1,0 +1,329 @@
+.configuracoes-page {
+  min-height: 100%;
+  background: #0f141b;
+  color: #172033;
+}
+
+.configuracoes-hero {
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-image: url("https://images.pexels.com/photos/30547594/pexels-photo-30547594.jpeg?cs=srgb&dl=pexels-pachon-in-motion-426015731-30547594.jpg&fm=jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.configuracoes-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 16, 35, 0.94),
+    rgba(7, 24, 48, 0.76),
+    rgba(7, 24, 48, 0.42)
+  );
+}
+
+.configuracoes-hero-content {
+  position: relative;
+  z-index: 1;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 56px 32px;
+  color: #ffffff;
+}
+
+.configuracoes-hero-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.configuracoes-hero h1 {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.configuracoes-hero p {
+  max-width: 620px;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.configuracoes-content {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 36px 32px 64px;
+}
+
+.config-card {
+  margin-bottom: 24px;
+  padding: 28px;
+  background: #181f28;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+}
+
+.config-card-header {
+  margin-bottom: 24px;
+}
+
+.config-section-number {
+  display: block;
+  margin-bottom: 6px;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.config-card h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 21px;
+  font-weight: 750;
+}
+
+.config-card-header p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-field-full {
+  grid-column: 1 / -1;
+}
+
+.config-field label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.config-field input,
+.config-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: #202833;
+  color: #172033;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.config-field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.config-field input:focus,
+.config-field textarea:focus {
+  border-color: #3b82f6;
+  background: #181f28;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.config-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.config-save-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 24px;
+  background: #2563eb;
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.config-save-button:hover {
+  background: #1d4ed8;
+}
+
+.config-save-button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 700px) {
+  .configuracoes-hero {
+    min-height: 240px;
+  }
+
+  .configuracoes-hero-content {
+    padding: 44px 20px;
+  }
+
+  .configuracoes-content {
+    padding: 24px 16px 48px;
+  }
+
+  .config-card {
+    padding: 20px;
+    border-radius: 13px;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-field-full {
+    grid-column: auto;
+  }
+
+  .config-actions {
+    display: block;
+  }
+
+  .config-save-button {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   CARDS — PADRÃO VISUAL DA PÁGINA DE NOTÍCIAS
+========================================================= */
+
+.configuracoes-card,
+.settings-card,
+.config-card {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  background: #1b222c;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.14);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.configuracoes-card:hover,
+.settings-card:hover,
+.config-card:hover {
+  border-color: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.22);
+}
+
+/* Campos dentro dos cards */
+
+.configuracoes-card input,
+.configuracoes-card textarea,
+.configuracoes-card select,
+.settings-card input,
+.settings-card textarea,
+.settings-card select,
+.config-card input,
+.config-card textarea,
+.config-card select {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  outline: none;
+  background: #0b1118;
+  color: #f5f7fa;
+  font: inherit;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.configuracoes-card input:focus,
+.configuracoes-card textarea:focus,
+.configuracoes-card select:focus,
+.settings-card input:focus,
+.settings-card textarea:focus,
+.settings-card select:focus,
+.config-card input:focus,
+.config-card textarea:focus,
+.config-card select:focus {
+  border-color: rgba(59, 130, 246, 0.7);
+  background: #0d141d;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Textos */
+
+.configuracoes-card h2,
+.configuracoes-card h3,
+.settings-card h2,
+.settings-card h3,
+.config-card h2,
+.config-card h3 {
+  color: #f5f7fa;
+}
+
+.configuracoes-card label,
+.settings-card label,
+.config-card label {
+  color: #e7ebf0;
+}
+
+.configuracoes-card p,
+.settings-card p,
+.config-card p {
+  color: #929ca8;
+}
+
+/* =========================================================
+   MENSAGEM DA CONFIGURAÇÃO
+========================================================= */
+
+.config-message {
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.config-message.success {
+  background: rgba(53, 201, 138, 0.1);
+  border: 1px solid rgba(53, 201, 138, 0.22);
+  color: #70e0b1;
+}
+
+.config-message.error {
+  background: rgba(239, 98, 98, 0.1);
+  border: 1px solid rgba(239, 98, 98, 0.22);
+  color: #ff9a9a;
+}
+
+.config-save-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}

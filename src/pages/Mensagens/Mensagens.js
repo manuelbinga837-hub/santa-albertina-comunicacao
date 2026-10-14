@@ -1,0 +1,490 @@
+import { apiRequest } from "../../services/api.js";
+import "./Mensagens.css";
+
+let messages = [];
+let selectedMessageId = null;
+let searchTerm = "";
+let currentFilter = "ALL";
+let socket = null;
+let audioContext = null;
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
+function formatDate(value) {
+  if (!value) return "Data indisponível";
+
+  const normalized = value.includes("T")
+    ? value
+    : `${value.replace(" ", "T")}Z`;
+
+  const date = new Date(normalized);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("pt-PT", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(date);
+}
+
+function isUnread(message) {
+  return message.status === "NEW" && !message.read_at;
+}
+
+function filteredMessages() {
+  return messages.filter((message) => {
+    const matchesFilter =
+      currentFilter === "ALL" ||
+      (currentFilter === "NEW" && isUnread(message)) ||
+      (currentFilter === "READ" && !isUnread(message));
+
+    const searchable = [
+      message.name,
+      message.contact,
+      message.email,
+      message.subject,
+      message.message
+    ].join(" ").toLowerCase();
+
+    return matchesFilter &&
+      searchable.includes(searchTerm.toLowerCase());
+  });
+}
+
+function playAlert() {
+  try {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return;
+
+    audioContext ??= new AudioContextClass();
+
+    if (audioContext.state === "suspended") {
+      audioContext.resume().catch(() => {});
+    }
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.value = 0.08;
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.18);
+  } catch {
+    // O navegador pode bloquear o som até existir uma interacção.
+  }
+}
+
+function renderMessageList() {
+  const list = document.querySelector("#messages-list");
+  if (!list) return;
+
+  const visibleMessages = filteredMessages();
+
+  if (!visibleMessages.length) {
+    list.innerHTML = `
+      <div class="messages-empty">
+        <span class="messages-empty__icon">✉</span>
+        <strong>Nenhuma mensagem encontrada</strong>
+        <p>As mensagens recebidas aparecerão aqui.</p>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = visibleMessages.map((message) => `
+    <button
+      type="button"
+      class="message-item ${isUnread(message) ? "is-unread" : ""} ${selectedMessageId === message.id ? "is-selected" : ""}"
+      data-message-id="${Number(message.id)}"
+      aria-label="Abrir mensagem de ${escapeHTML(message.name)}"
+    >
+      <span class="message-item__avatar">
+        ${escapeHTML((message.name || "?").trim().charAt(0).toUpperCase())}
+      </span>
+
+      <span class="message-item__content">
+        <span class="message-item__top">
+          <strong>${escapeHTML(message.name)}</strong>
+          <time>${escapeHTML(formatDate(message.created_at))}</time>
+        </span>
+        <span class="message-item__subject">
+          ${escapeHTML(message.subject)}
+        </span>
+        <span class="message-item__preview">
+          ${escapeHTML(message.message)}
+        </span>
+      </span>
+
+      ${isUnread(message)
+        ? '<span class="message-item__dot" aria-label="Não lida"></span>'
+        : ""}
+    </button>
+  `).join("");
+}
+
+function renderDetails() {
+  const details = document.querySelector("#message-details");
+  if (!details) return;
+
+  const message = messages.find(
+    (item) => item.id === selectedMessageId
+  );
+
+  if (!message) {
+    details.innerHTML = `
+      <div class="messages-empty messages-empty--details">
+        <span class="messages-empty__icon">☝</span>
+        <strong>Selecciona uma mensagem</strong>
+        <p>Os detalhes da mensagem aparecerão aqui.</p>
+      </div>
+    `;
+    return;
+  }
+
+  details.innerHTML = `
+    <div class="message-details__header">
+      <div>
+        <span class="messages-eyebrow">MENSAGEM RECEBIDA</span>
+        <h2>${escapeHTML(message.subject)}</h2>
+      </div>
+
+      <span class="message-status ${isUnread(message) ? "message-status--new" : "message-status--read"}">
+        ${isUnread(message) ? "Não lida" : "Lida"}
+      </span>
+    </div>
+
+    <div class="message-sender">
+      <span class="message-sender__avatar">
+        ${escapeHTML((message.name || "?").trim().charAt(0).toUpperCase())}
+      </span>
+      <div>
+        <strong>${escapeHTML(message.name)}</strong>
+        <p>Recebida em ${escapeHTML(formatDate(message.created_at))}</p>
+      </div>
+    </div>
+
+    <div class="message-contact-data">
+      <div>
+        <span>Contacto</span>
+        <strong>${escapeHTML(message.contact || "Não indicado")}</strong>
+      </div>
+      <div>
+        <span>E-mail</span>
+        <strong>${escapeHTML(message.email || "Não indicado")}</strong>
+      </div>
+    </div>
+
+    <div class="message-body">
+      <h3>Conteúdo da mensagem</h3>
+      <p>${escapeHTML(message.message).replace(/\n/g, "<br>")}</p>
+    </div>
+
+    <div class="message-details__footer">
+      <span>Mensagem #${Number(message.id)}</span>
+      ${isUnread(message) ? `
+        <button
+          type="button"
+          class="messages-button messages-button--primary"
+          id="mark-message-read"
+        >
+          ✓ Marcar como lida
+        </button>
+      ` : ""}
+    </div>
+  `;
+
+  const readButton = details.querySelector("#mark-message-read");
+
+  readButton?.addEventListener("click", async () => {
+    readButton.disabled = true;
+
+    try {
+      const result = await apiRequest(
+        `/contact-messages/${Number(message.id)}/read`,
+        { method: "PATCH" }
+      );
+
+      const updated = result.data;
+
+      messages = messages.map((item) =>
+        item.id === updated.id ? updated : item
+      );
+
+      renderPage();
+    } catch (error) {
+      readButton.disabled = false;
+      alert(error.message || "Não foi possível marcar a mensagem como lida.");
+    }
+  });
+}
+
+function renderCounters() {
+  const total = document.querySelector("#messages-total");
+  const unread = document.querySelector("#messages-unread");
+  const read = document.querySelector("#messages-read");
+
+  if (total) total.textContent = messages.length;
+  if (unread) unread.textContent =
+    messages.filter(isUnread).length;
+  if (read) read.textContent =
+    messages.filter((message) => !isUnread(message)).length;
+}
+
+function renderPage() {
+  renderCounters();
+  renderMessageList();
+  renderDetails();
+}
+
+async function loadMessages({ silent = false } = {}) {
+  const status = document.querySelector("#messages-load-status");
+  const list = document.querySelector("#messages-list");
+
+  try {
+    if (status) status.textContent = "A actualizar mensagens…";
+
+    const result = await apiRequest("/contact-messages");
+
+    if (!result?.success) {
+      throw new Error(result?.message || "Não foi possível carregar as mensagens.");
+    }
+
+    const data = Array.isArray(result.data)
+      ? result.data
+      : Array.isArray(result.data?.messages)
+        ? result.data.messages
+        : [];
+
+    messages = data.map((message) => ({
+      ...message,
+      id: Number(message.id)
+    }));
+
+    if (
+      selectedMessageId !== null &&
+      !messages.some(
+        (message) => Number(message.id) === Number(selectedMessageId)
+      )
+    ) {
+      selectedMessageId = null;
+    }
+
+    renderPage();
+
+    if (status) {
+      status.textContent = messages.length
+        ? `${messages.length} mensagem(ns) carregada(s).`
+        : "Ainda não existem mensagens.";
+    }
+  } catch (error) {
+    console.error("Erro ao carregar mensagens:", error);
+
+    if (status) {
+      status.textContent =
+        error?.message || "Erro ao carregar mensagens.";
+    }
+
+    if (!silent && list) {
+      list.innerHTML = `
+        <div class="messages-error">
+          <strong>Não foi possível carregar as mensagens.</strong>
+          <p>${error?.message || "Verifica a ligação com o servidor."}</p>
+          <button type="button" class="messages-button" id="retry-messages">
+            Tentar novamente
+          </button>
+        </div>
+      `;
+
+      list.querySelector("#retry-messages")
+        ?.addEventListener("click", () => loadMessages());
+    }
+  }
+}
+
+function connectRealtime() {
+  if (socket) return;
+
+  // O Socket.IO é carregado pelo cliente instalado no painel.
+  import("socket.io-client")
+    .then(({ io }) => {
+      const token = sessionStorage.getItem("sa_communication_token");
+
+      if (!token) return;
+
+      socket = io("http://localhost:3000", {
+        auth: { token },
+        reconnection: true
+      });
+
+      socket.on("contact:new", async () => {
+        playAlert();
+        await loadMessages({ silent: true });
+
+        const status = document.querySelector("#messages-load-status");
+        if (status) {
+          status.textContent = "Nova mensagem recebida.";
+        }
+      });
+
+      socket.on("connect_error", (error) => {
+        console.warn("Socket de mensagens:", error.message);
+      });
+    })
+    .catch(() => {
+      console.warn(
+        "Socket.IO client indisponível. A página continuará a funcionar com actualização manual."
+      );
+    });
+}
+
+export function Mensagens() {
+  return `
+    <section class="messages-page">
+      <header class="messages-page__heading">
+        <div>
+          <span class="messages-eyebrow">CENTRAL DE COMUNICAÇÃO</span>
+          <h1>Mensagens</h1>
+          <p>Consulta e gere as mensagens enviadas à escola.</p>
+        </div>
+
+        <button
+          type="button"
+          class="messages-button"
+          id="refresh-messages"
+        >
+          ↻ Actualizar
+        </button>
+      </header>
+
+      <div class="messages-stats">
+        <article class="messages-stat">
+          <span>Total de mensagens</span>
+          <strong id="messages-total">0</strong>
+        </article>
+        <article class="messages-stat">
+          <span>Não lidas</span>
+          <strong id="messages-unread">0</strong>
+        </article>
+        <article class="messages-stat">
+          <span>Lidas</span>
+          <strong id="messages-read">0</strong>
+        </article>
+      </div>
+
+      <div class="messages-workspace">
+        <section class="messages-inbox">
+          <div class="messages-inbox__heading">
+            <h2>Caixa de entrada</h2>
+            <span id="messages-load-status" aria-live="polite">
+              A carregar mensagens…
+            </span>
+          </div>
+
+          <label class="messages-search">
+            <span aria-hidden="true">⌕</span>
+            <input
+              id="messages-search"
+              type="search"
+              placeholder="Pesquisar mensagens…"
+              autocomplete="off"
+            />
+          </label>
+
+          <div class="messages-filters">
+            <button type="button" data-filter="ALL" class="is-active">Todas</button>
+            <button type="button" data-filter="NEW">Não lidas</button>
+            <button type="button" data-filter="READ">Lidas</button>
+          </div>
+
+          <div id="messages-list" class="messages-list">
+            <div class="messages-loading">A carregar mensagens…</div>
+          </div>
+        </section>
+
+        <section
+          id="message-details"
+          class="message-details"
+          aria-live="polite"
+        >
+          <div class="messages-empty messages-empty--details">
+            <span class="messages-empty__icon">✉</span>
+            <strong>Selecciona uma mensagem</strong>
+            <p>Os detalhes da mensagem aparecerão aqui.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+export function setupMessagesPage() {
+  const root = document.querySelector(".messages-page");
+  if (!root) return;
+
+  root.querySelector("#refresh-messages")
+    ?.addEventListener("click", () => loadMessages());
+
+  root.querySelector("#messages-search")
+    ?.addEventListener("input", (event) => {
+      searchTerm = event.target.value.trim();
+      renderMessageList();
+    });
+
+  root.querySelectorAll("[data-filter]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+
+        root.querySelectorAll("[data-filter]")
+          .forEach((item) => {
+            item.classList.toggle(
+              "is-active",
+              item === button
+            );
+          });
+
+        renderMessageList();
+      });
+    });
+
+  root.querySelector("#messages-list")
+    ?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-message-id]");
+      if (!button) return;
+
+      selectedMessageId = Number(button.dataset.messageId);
+
+      // O som só poderá ser activado após interacção do utilizador.
+      try {
+        const AudioContextClass =
+          window.AudioContext || window.webkitAudioContext;
+
+        if (AudioContextClass) {
+          audioContext ??= new AudioContextClass();
+          audioContext.resume().catch(() => {});
+        }
+      } catch {}
+
+      renderPage();
+    });
+
+  loadMessages();
+  connectRealtime();
+}

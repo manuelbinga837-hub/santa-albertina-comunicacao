@@ -1,0 +1,316 @@
+import "./Galeria.css";
+
+export function Galeria() {
+  return `
+    <main class="gallery-page">
+
+      <section class="gallery-hero">
+        <div class="gallery-hero-copy">
+          <span class="gallery-eyebrow">CENTRAL DE COMUNICAÇÃO</span>
+          <h1>Galeria <span>Escolar.</span></h1>
+          <p>
+            Regista os momentos especiais, organiza as fotografias
+            e partilha a vida escolar da comunidade Santa Albertina.
+          </p>
+
+          <button type="button" class="gallery-primary-button"
+            data-gallery-action="new-album">
+            <span>＋</span> Criar álbum
+          </button>
+        </div>
+
+        <div class="gallery-hero-image">
+          <img
+            src="https://images.pexels.com/photos/5905710/pexels-photo-5905710.jpeg?auto=compress&cs=tinysrgb&w=1400"
+            alt="Momento de aprendizagem numa escola"
+          >
+          <div class="gallery-hero-image-overlay"></div>
+          <span class="gallery-image-caption">
+            <i></i> Memórias da nossa comunidade
+          </span>
+        </div>
+      </section>
+
+      <section class="gallery-stats" aria-label="Estatísticas da galeria">
+        <article class="gallery-stat-card">
+          <span class="gallery-stat-icon">▧</span>
+          <span class="gallery-stat-label">Total de álbuns</span>
+          <strong id="gallery-stat-total">—</strong>
+          <small>Álbuns registados</small>
+        </article>
+
+        <article class="gallery-stat-card">
+          <span class="gallery-stat-icon green">✓</span>
+          <span class="gallery-stat-label">Publicados</span>
+          <strong id="gallery-stat-published">—</strong>
+          <small>Álbuns publicados</small>
+        </article>
+
+        <article class="gallery-stat-card">
+          <span class="gallery-stat-icon purple">◷</span>
+          <span class="gallery-stat-label">Agendados</span>
+          <strong id="gallery-stat-scheduled">—</strong>
+          <small>Publicações programadas</small>
+        </article>
+
+        <article class="gallery-stat-card">
+          <span class="gallery-stat-icon orange">▦</span>
+          <span class="gallery-stat-label">Fotografias</span>
+          <strong id="gallery-stat-photos">—</strong>
+          <small>Fotografias nos álbuns</small>
+        </article>
+      </section>
+
+      <section class="gallery-list-section">
+        <div class="gallery-section-heading">
+          <div>
+            <span class="gallery-eyebrow">ARQUIVO VISUAL</span>
+            <h2>Os nossos álbuns</h2>
+            <p>Organiza e consulta os momentos da escola.</p>
+          </div>
+
+          <span id="gallery-results-count" class="gallery-results-count">
+            A carregar...
+          </span>
+        </div>
+
+        <div class="gallery-toolbar">
+          <label class="gallery-search">
+            <span aria-hidden="true">⌕</span>
+            <input id="gallery-search-input" type="search"
+              placeholder="Pesquisar álbuns..." autocomplete="off">
+          </label>
+
+          <label class="gallery-filter">
+            <span>Estado</span>
+            <select id="gallery-status-filter">
+              <option value="all">Todos os estados</option>
+              <option value="PUBLISHED">Publicados</option>
+              <option value="SCHEDULED">Agendados</option>
+              <option value="DRAFT">Rascunhos</option>
+            </select>
+          </label>
+
+          <button type="button" class="gallery-secondary-button"
+            data-gallery-action="clear-filters">
+            Limpar filtros
+          </button>
+        </div>
+
+        <div id="gallery-error" class="gallery-error" hidden>
+          <strong>Não foi possível carregar a Galeria.</strong>
+          <p id="gallery-error-message">
+            Verifica se o servidor está ligado.
+          </p>
+          <button type="button" class="gallery-secondary-button"
+            data-gallery-action="retry">Tentar novamente</button>
+        </div>
+
+        <div id="gallery-loading" class="gallery-grid">
+          <div class="gallery-skeleton"></div>
+          <div class="gallery-skeleton"></div>
+          <div class="gallery-skeleton"></div>
+        </div>
+
+        <div id="gallery-empty" class="gallery-empty" hidden>
+          <span>▧</span>
+          <h3>A Galeria ainda está vazia</h3>
+          <p>Cria o primeiro álbum para começar a guardar as memórias da escola.</p>
+          <button type="button" class="gallery-primary-button"
+            data-gallery-action="new-album">＋ Criar primeiro álbum</button>
+        </div>
+
+        <div id="gallery-no-results" class="gallery-empty" hidden>
+          <span>⌕</span>
+          <h3>Nenhum álbum encontrado</h3>
+          <p>Experimenta alterar a pesquisa ou o filtro.</p>
+        </div>
+
+        <div id="gallery-grid" class="gallery-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="gallery-detail" class="gallery-detail" hidden>
+        <div class="gallery-detail-heading">
+          <div>
+            <button type="button" class="gallery-back-button"
+              data-gallery-action="close-album">← Voltar aos álbuns</button>
+            <span class="gallery-eyebrow">ÁLBUM SELECCIONADO</span>
+            <h2 id="gallery-detail-title"></h2>
+            <p id="gallery-detail-description"></p>
+          </div>
+
+          <button type="button" class="gallery-primary-button"
+            data-gallery-action="new-photo">＋ Adicionar fotografia</button>
+        </div>
+
+        <div id="gallery-photo-error" class="gallery-error" hidden></div>
+        <div id="gallery-photos-grid" class="gallery-photos-grid"></div>
+      </section>
+
+      <div id="gallery-album-modal" class="gallery-modal" hidden>
+        <div class="gallery-modal-backdrop" data-gallery-action="close-album-modal"></div>
+
+        <section class="gallery-modal-dialog" role="dialog"
+          aria-modal="true" aria-labelledby="gallery-album-form-title">
+          <header class="gallery-modal-header">
+            <div>
+              <span class="gallery-eyebrow">GESTÃO DE CONTEÚDO</span>
+              <h2 id="gallery-album-form-title">Criar álbum</h2>
+              <p>Preenche as informações do novo álbum.</p>
+            </div>
+            <button type="button" class="gallery-modal-close"
+              data-gallery-action="close-album-modal" aria-label="Fechar">×</button>
+          </header>
+
+          <form id="gallery-album-form">
+            <label class="gallery-form-field">
+              Título do álbum *
+              <input name="title" required minlength="2" maxlength="200"
+                placeholder="Ex.: Celebração do Dia do Professor">
+            </label>
+
+            <label class="gallery-form-field">
+              Resumo
+              <textarea name="summary" maxlength="500" rows="2"
+                placeholder="Breve apresentação do álbum"></textarea>
+            </label>
+
+            <label class="gallery-form-field">
+              Descrição
+              <textarea name="description" maxlength="1000" rows="3"
+                placeholder="Conta um pouco mais sobre este momento"></textarea>
+            </label>
+
+            <div class="gallery-form-field">
+              <label for="gallery-cover-url">URL da imagem de capa</label>
+              <input id="gallery-cover-url" name="coverUrl" type="url" maxlength="1000"
+                placeholder="https://...">
+
+              <button type="button" id="gallery-choose-cover"
+                style="display:block;width:100%;min-height:48px;padding:12px;margin:8px 0;background:#2563eb;color:#fff;border:0;border-radius:8px;font-size:16px;font-weight:bold;">
+                📷 Escolher fotografia de capa
+              </button>
+
+              <input id="gallery-cover-file" name="coverFile" type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                style="display:none">
+
+              <span id="gallery-cover-selected"
+                style="display:block;color:#cbd5e1;font-weight:400;">
+                Nenhuma fotografia de capa seleccionada.
+              </span>
+
+              <small>JPG, PNG, WEBP ou GIF; máximo 5 MB. Também podes usar o link acima.</small>
+            </div>
+
+            <label class="gallery-form-field">
+              Visibilidade
+              <select name="visibility">
+                <option value="SITE_AND_APP">Site e aplicação</option>
+                <option value="SITE_ONLY">Apenas site</option>
+                <option value="APP_ONLY">Apenas aplicação</option>
+                <option value="INTERNAL">Interno</option>
+              </select>
+            </label>
+
+            <label class="gallery-form-field">
+              Estado
+              <select name="status" id="gallery-album-status">
+                <option value="DRAFT">Rascunho</option>
+                <option value="PUBLISHED">Publicado</option>
+                <option value="SCHEDULED">Agendado</option>
+              </select>
+            </label>
+
+            <label class="gallery-form-field" id="gallery-schedule-field" hidden>
+              Data e hora da publicação
+              <input name="scheduledAt" type="datetime-local">
+            </label>
+
+            <p id="gallery-album-form-error" class="gallery-form-error" hidden></p>
+
+            <footer class="gallery-form-actions">
+              <button type="button" class="gallery-secondary-button"
+                data-gallery-action="close-album-modal">Cancelar</button>
+              <button type="submit" class="gallery-primary-button"
+                id="gallery-album-submit">Criar álbum</button>
+            </footer>
+          </form>
+        </section>
+      </div>
+
+      <div id="gallery-photo-modal" class="gallery-modal" hidden>
+        <div class="gallery-modal-backdrop" data-gallery-action="close-photo-modal"></div>
+
+        <section class="gallery-modal-dialog" role="dialog"
+          aria-modal="true" aria-labelledby="gallery-photo-form-title">
+          <header class="gallery-modal-header">
+            <div>
+              <span class="gallery-eyebrow">FOTOGRAFIA</span>
+              <h2 id="gallery-photo-form-title">Adicionar fotografia</h2>
+              <p>Escolhe imagens do telemóvel ou adiciona uma imagem por URL.</p>
+            </div>
+            <button type="button" class="gallery-modal-close"
+              data-gallery-action="close-photo-modal" aria-label="Fechar">×</button>
+          </header>
+
+          <form id="gallery-photo-form">
+            <div class="gallery-form-field">
+              <button
+                type="button"
+                id="gallery-choose-photos"
+                style="display:block;width:100%;min-height:48px;padding:12px;margin:8px 0;background:#2563eb;color:#ffffff;border:0;border-radius:8px;font-size:16px;font-weight:bold;"
+              >📷 Escolher fotografias do telemóvel</button>
+              <span id="gallery-selected-photos" style="display:block;margin:8px 0;color:#cbd5e1;">Nenhuma fotografia seleccionada.</span>
+              <input
+                type="file"
+                name="photoFiles"
+                id="gallery-photo-files"
+                accept="image/*"
+                multiple
+              >
+              <small>Selecciona fotografias da galeria do telemóvel. Até 10 imagens por envio.</small>
+            </div>
+
+            <div id="gallery-local-previews" class="gallery-local-previews" hidden></div>
+
+            <div class="gallery-form-divider"><span>OU</span></div>
+
+            <label class="gallery-form-field">
+              URL da fotografia
+              <input name="url" type="url" maxlength="1000"
+                placeholder="https://...">
+              <small>Utiliza esta opção se a imagem já estiver disponível na Internet.</small>
+            </label>
+
+            <label class="gallery-form-field">
+              Legenda
+              <input name="caption" maxlength="500"
+                placeholder="Descreve este momento">
+            </label>
+
+            <label class="gallery-form-field">
+              Posição na galeria
+              <input name="sortOrder" type="number" min="0" value="0">
+            </label>
+
+            <div id="gallery-photo-preview" class="gallery-photo-preview" hidden>
+              <img id="gallery-photo-preview-image" alt="Pré-visualização da fotografia">
+            </div>
+
+            <p id="gallery-photo-form-error" class="gallery-form-error" hidden></p>
+
+            <footer class="gallery-form-actions">
+              <button type="button" class="gallery-secondary-button"
+                data-gallery-action="close-photo-modal">Cancelar</button>
+              <button type="submit" class="gallery-primary-button"
+                id="gallery-photo-submit">Adicionar fotografia</button>
+            </footer>
+          </form>
+        </section>
+      </div>
+
+      <div id="gallery-toast" class="gallery-toast" role="status" hidden></div>
+    </main>
+  `;
+}

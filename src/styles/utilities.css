@@ -1,0 +1,190 @@
+/* ================================
+   CONTAINER
+================================= */
+
+.container {
+  width: min(
+    calc(100% - 2rem),
+    var(--content-max-width)
+  );
+
+  margin-inline: auto;
+}
+
+/* ================================
+   ACESSIBILIDADE
+================================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================================
+   TEXTO
+================================= */
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-soft {
+  color: var(--color-text-soft);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-accent {
+  color: var(--color-accent);
+}
+
+/* ================================
+   DISPLAY
+================================= */
+
+.hidden {
+  display: none !important;
+}
+
+.flex {
+  display: flex;
+}
+
+.grid {
+  display: grid;
+}
+
+/* ================================
+   ALINHAMENTO
+================================= */
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+/* ================================
+   ESPAÇAMENTO
+================================= */
+
+.gap-1 {
+  gap: var(--space-1);
+}
+
+.gap-2 {
+  gap: var(--space-2);
+}
+
+.gap-3 {
+  gap: var(--space-3);
+}
+
+.gap-4 {
+  gap: var(--space-4);
+}
+
+.gap-6 {
+  gap: var(--space-6);
+}
+
+.gap-8 {
+  gap: var(--space-8);
+}
+
+/* ================================
+   LAYOUTS
+================================= */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+/* ================================
+   IMAGENS
+================================= */
+
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ================================
+   INTERAÇÃO
+================================= */
+
+.clickable {
+  cursor: pointer;
+}
+
+.no-select {
+  user-select: none;
+}
+
+/* ================================
+   DIVISOR
+================================= */
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* ================================
+   RESPONSIVIDADE
+================================= */
+
+@media (min-width: 768px) {
+  .container {
+    width: min(
+      calc(100% - 3rem),
+      var(--content-max-width)
+    );
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    width: min(
+      calc(100% - 4rem),
+      var(--content-max-width)
+    );
+  }
+}

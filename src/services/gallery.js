@@ -1,0 +1,50 @@
+import { apiRequest } from "./api.js";
+
+export async function getAlbums() {
+  const response = await apiRequest("/albums");
+  return response?.data || [];
+}
+
+export async function createAlbum(data) {
+  const response = await apiRequest("/albums", {
+    method: "POST",
+    body: data
+  });
+
+  return response?.data;
+}
+
+export async function deleteAlbum(id) {
+  return apiRequest(`/albums/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export async function getAlbumPhotos(id) {
+  const response = await apiRequest(`/albums/${id}/photos`);
+  return response?.data || [];
+}
+
+export async function addPhoto(data) {
+  const response = await apiRequest("/albums/photos", {
+    method: "POST",
+    body: data
+  });
+
+  return response?.data;
+}
+
+export async function deletePhoto(id) {
+  return apiRequest(`/albums/photos/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export async function uploadAlbumPhotos(formData) {
+  const response = await apiRequest("/albums/photos/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  return response?.data || [];
+}

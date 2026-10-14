@@ -1,0 +1,505 @@
+export function Noticias() {
+  return `
+    <section class="news-page">
+
+      <section class="news-hero">
+
+        <div class="news-hero-content">
+
+          <span class="news-eyebrow">COMUNICAÇÃO</span>
+
+          <h1>Notícias</h1>
+
+          <p>
+            Informação que chega à comunidade.
+            Crie, organize e publique as notícias da escola.
+          </p>
+
+          <button
+            class="primary-button"
+            type="button"
+            data-action="new-news"
+          >
+            <span>+</span>
+            Nova notícia
+          </button>
+
+        </div>
+
+        <div class="news-hero-visual" aria-hidden="true">
+          <div class="hero-image-placeholder">
+            <span>📰</span>
+          </div>
+        </div>
+
+      </section>
+
+
+      <section class="news-stats" aria-label="Resumo das notícias">
+
+        <article class="stat-card">
+          <span class="stat-icon">▤</span>
+
+          <div>
+            <span class="stat-label">Total</span>
+            <strong id="news-total">0</strong>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon">✓</span>
+
+          <div>
+            <span class="stat-label">Publicadas</span>
+            <strong id="news-published">0</strong>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon">✎</span>
+
+          <div>
+            <span class="stat-label">Rascunhos</span>
+            <strong id="news-drafts">0</strong>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon">◷</span>
+
+          <div>
+            <span class="stat-label">Agendadas</span>
+            <strong id="news-scheduled">0</strong>
+          </div>
+        </article>
+
+      </section>
+
+
+      <section class="news-toolbar">
+
+        <div class="news-search">
+
+          <span class="search-icon">⌕</span>
+
+          <input
+            id="news-search-input"
+            type="search"
+            placeholder="Pesquisar notícias..."
+            aria-label="Pesquisar notícias"
+          />
+
+        </div>
+
+        <div class="news-filters">
+
+          <select
+            id="news-status-filter"
+            aria-label="Filtrar por estado"
+          >
+            <option value="">Todos os estados</option>
+            <option value="published">Publicadas</option>
+            <option value="draft">Rascunhos</option>
+            <option value="scheduled">Agendadas</option>
+          </select>
+
+          <select
+            id="news-category-filter"
+            aria-label="Filtrar por categoria"
+          >
+            <option value="">Todas as categorias</option>
+            <option value="academico">Académico</option>
+            <option value="vida-escolar">Vida escolar</option>
+            <option value="comunicados">Comunicados</option>
+            <option value="eventos">Eventos</option>
+          </select>
+
+        </div>
+
+      </section>
+
+
+      <section class="news-publications">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-eyebrow">PUBLICAÇÕES</span>
+            <h2>Notícias da escola</h2>
+          </div>
+
+          <span class="results-count" id="news-results-count">
+            0 publicações
+          </span>
+
+        </div>
+
+
+        <div class="news-grid" id="news-grid">
+          <div class="news-loading-state">
+            A carregar notícias...
+          </div>
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- =====================================================
+         MODAL — NOVA NOTÍCIA
+    ====================================================== -->
+
+    <div
+      class="news-modal"
+      id="news-create-modal"
+      aria-hidden="true"
+    >
+
+      <div
+        class="news-modal-backdrop"
+        data-close-news-modal
+      ></div>
+
+
+      <section
+        class="news-modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="news-create-modal-title"
+      >
+
+        <button
+          class="news-modal-close"
+          id="news-create-modal-close"
+          type="button"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+
+
+        <div class="news-modal-header">
+
+          <span class="news-modal-eyebrow">
+            NOVA PUBLICAÇÃO
+          </span>
+
+          <h2 id="news-create-modal-title">
+            Criar notícia
+          </h2>
+
+          <p>
+            Preencha as informações da notícia e escolha
+            como pretende publicá-la.
+          </p>
+
+        </div>
+
+
+        <form
+          class="news-form"
+          id="news-create-form"
+        >
+
+          <div class="news-form-grid">
+
+
+            <div class="news-form-field news-form-field-full">
+
+              <label for="news-title">
+                Título
+                <span>*</span>
+              </label>
+
+              <input
+                id="news-title"
+                name="title"
+                type="text"
+                maxlength="200"
+                placeholder="Ex.: Nova atividade académica na escola"
+                required
+              />
+
+              <small>
+                O título principal apresentado na notícia.
+              </small>
+
+            </div>
+
+
+            <div class="news-form-field news-form-field-full">
+
+              <label for="news-summary">
+                Resumo
+              </label>
+
+              <textarea
+                id="news-summary"
+                name="summary"
+                rows="3"
+                maxlength="500"
+                placeholder="Escreva um pequeno resumo da notícia..."
+              ></textarea>
+
+            </div>
+
+
+            <div class="news-form-field news-form-field-full">
+
+              <label for="news-content">
+                Conteúdo
+                <span>*</span>
+              </label>
+
+              <textarea
+                id="news-content"
+                name="content"
+                rows="8"
+                maxlength="10000"
+                placeholder="Escreva o conteúdo completo da notícia..."
+                required
+              ></textarea>
+
+            </div>
+
+
+            <div class="news-form-field">
+
+              <label for="news-category">
+                Categoria
+              </label>
+
+              <select
+                id="news-category"
+                name="category"
+              >
+                <option value="">
+                  Selecionar categoria
+                </option>
+                <option value="Académico">
+                  Académico
+                </option>
+                <option value="Vida Escolar">
+                  Vida Escolar
+                </option>
+                <option value="Comunicados">
+                  Comunicados
+                </option>
+                <option value="Eventos">
+                  Eventos
+                </option>
+              </select>
+
+            </div>
+
+
+            <div class="news-form-field">
+
+              <label for="news-author">
+                Autor
+              </label>
+
+              <input
+                id="news-author"
+                name="author"
+                type="text"
+                maxlength="150"
+                placeholder="Nome do autor"
+              />
+
+            </div>
+
+
+            <div class="news-form-field">
+
+              <label for="news-visibility">
+                Visibilidade
+              </label>
+
+              <select
+                id="news-visibility"
+                name="visibility"
+              >
+                <option value="SITE_AND_APP">
+                  Site e aplicação
+                </option>
+                <option value="SITE_ONLY">
+                  Apenas site
+                </option>
+                <option value="APP_ONLY">
+                  Apenas aplicação
+                </option>
+                <option value="INTERNAL">
+                  Interno
+                </option>
+              </select>
+
+            </div>
+
+
+            <div class="news-form-field">
+
+              <label for="news-status">
+                Estado
+              </label>
+
+              <select
+                id="news-status"
+                name="status"
+              >
+                <option value="DRAFT">
+                  Rascunho
+                </option>
+                <option value="PUBLISHED">
+                  Publicar agora
+                </option>
+                <option value="SCHEDULED">
+                  Agendar publicação
+                </option>
+              </select>
+
+            </div>
+
+
+            <div
+              class="news-form-field"
+              id="news-scheduled-at-field"
+              hidden
+            >
+
+              <label for="news-scheduled-at">
+                Data e hora de publicação
+              </label>
+
+              <input
+                id="news-scheduled-at"
+                name="scheduledAt"
+                type="datetime-local"
+              />
+
+            </div>
+
+
+            <div class="news-form-field news-form-field-full">
+
+              <label>
+                Imagem de capa
+              </label>
+
+              <div class="news-cover-upload">
+
+                <div
+                  class="news-cover-preview"
+                  id="news-cover-preview"
+                >
+                  <span>🖼️</span>
+
+                  <small>
+                    A pré-visualização aparecerá aqui
+                  </small>
+                </div>
+
+
+                <div class="news-cover-actions">
+
+                  <label
+                    class="news-upload-button"
+                    for="news-cover-file"
+                  >
+                    <span>↑</span>
+                    Carregar imagem
+                  </label>
+
+                  <input
+                    id="news-cover-file"
+                    name="coverFile"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                  />
+
+
+                  <div class="news-cover-link">
+
+                    <input
+                      id="news-cover-url"
+                      name="coverUrl"
+                      type="url"
+                      maxlength="1000"
+                      placeholder="https://exemplo.com/imagem.jpg"
+                    />
+
+                    <button
+                      class="news-link-button"
+                      id="news-cover-link-button"
+                      type="button"
+                    >
+                      Adicionar por link
+                    </button>
+
+                  </div>
+
+                </div>
+
+                <p class="news-cover-note">
+                  Pode escolher uma imagem do dispositivo ou
+                  adicionar uma imagem através de um link.
+                </p>
+
+              </div>
+
+            </div>
+
+
+          </div>
+
+
+          <div
+            class="news-form-message"
+            id="news-form-message"
+            role="alert"
+            aria-live="polite"
+            hidden
+          ></div>
+
+
+          <div class="news-form-actions">
+
+            <button
+              class="news-form-cancel"
+              id="news-create-cancel"
+              type="button"
+            >
+              Cancelar
+            </button>
+
+            <div class="news-form-primary-actions">
+
+              <button
+                class="news-form-save"
+                type="submit"
+                data-news-submit="draft"
+              >
+                Guardar rascunho
+              </button>
+
+              <button
+                class="news-form-publish"
+                type="submit"
+                data-news-submit="publish"
+              >
+                Publicar notícia
+              </button>
+
+            </div>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    </div>
+  `;
+}

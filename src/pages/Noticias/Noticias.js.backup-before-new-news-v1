@@ -1,0 +1,263 @@
+export function Noticias() {
+  return `
+    <section class="news-page">
+
+      <section class="news-hero">
+
+        <div class="news-hero-content">
+
+          <span class="news-eyebrow">COMUNICAÇÃO</span>
+
+          <h1>Notícias</h1>
+
+          <p>
+            Informação que chega à comunidade.
+            Crie, organize e publique as notícias da escola.
+          </p>
+
+          <button
+            class="primary-button"
+            type="button"
+            data-action="new-news"
+          >
+            <span>+</span>
+            Nova notícia
+          </button>
+
+        </div>
+
+        <div class="news-hero-visual" aria-hidden="true">
+          <div class="hero-image-placeholder">
+            <span>📰</span>
+          </div>
+        </div>
+
+      </section>
+
+
+      <section class="news-stats" aria-label="Resumo das notícias">
+
+        <article class="stat-card">
+          <span class="stat-icon">▤</span>
+
+          <div>
+            <span class="stat-label">Total</span>
+            <strong>24</strong>
+          </div>
+        </article>
+
+
+        <article class="stat-card">
+          <span class="stat-icon">✓</span>
+
+          <div>
+            <span class="stat-label">Publicadas</span>
+            <strong>18</strong>
+          </div>
+        </article>
+
+
+        <article class="stat-card">
+          <span class="stat-icon">✎</span>
+
+          <div>
+            <span class="stat-label">Rascunhos</span>
+            <strong>4</strong>
+          </div>
+        </article>
+
+
+        <article class="stat-card">
+          <span class="stat-icon">◷</span>
+
+          <div>
+            <span class="stat-label">Agendadas</span>
+            <strong>2</strong>
+          </div>
+        </article>
+
+      </section>
+
+
+      <section class="news-toolbar">
+
+        <div class="news-search">
+
+          <span class="search-icon">⌕</span>
+
+          <input
+            type="search"
+            placeholder="Pesquisar notícias..."
+            aria-label="Pesquisar notícias"
+          />
+
+        </div>
+
+
+        <div class="news-filters">
+
+          <select aria-label="Filtrar por estado">
+            <option value="">Todos os estados</option>
+            <option value="published">Publicadas</option>
+            <option value="draft">Rascunhos</option>
+            <option value="scheduled">Agendadas</option>
+          </select>
+
+
+          <select aria-label="Filtrar por categoria">
+            <option value="">Todas as categorias</option>
+            <option value="academico">Académico</option>
+            <option value="vida-escolar">Vida escolar</option>
+            <option value="comunicados">Comunicados</option>
+            <option value="eventos">Eventos</option>
+          </select>
+
+        </div>
+
+      </section>
+
+
+      <section class="news-publications">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-eyebrow">PUBLICAÇÕES</span>
+            <h2>Notícias da escola</h2>
+          </div>
+
+          <span class="results-count">
+            24 publicações
+          </span>
+
+        </div>
+
+
+        <div class="news-grid">
+
+          <article class="news-card">
+
+            <div class="news-card-image">
+              <div class="news-image-placeholder">
+                📰
+              </div>
+
+              <span class="news-status published">
+                Publicado
+              </span>
+            </div>
+
+
+            <div class="news-card-body">
+
+              <div class="news-card-category">
+                Académico
+              </div>
+
+              <h3>
+                Nova atividade académica na escola
+              </h3>
+
+              <p>
+                Informação sobre uma nova atividade
+                desenvolvida pela comunidade escolar.
+              </p>
+
+              <div class="news-card-footer">
+
+                <span class="news-date">
+                  30 Set 2026
+                </span>
+
+                <div class="news-actions">
+
+                  <button
+                    class="secondary-button"
+                    type="button"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+                    •••
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <article class="news-card">
+
+            <div class="news-card-image">
+              <div class="news-image-placeholder">
+                📢
+              </div>
+
+              <span class="news-status draft">
+                Rascunho
+              </span>
+            </div>
+
+
+            <div class="news-card-body">
+
+              <div class="news-card-category">
+                Comunicados
+              </div>
+
+              <h3>
+                Comunicado importante para a comunidade escolar
+              </h3>
+
+              <p>
+                Este comunicado está guardado como
+                rascunho e ainda não foi publicado.
+              </p>
+
+              <div class="news-card-footer">
+
+                <span class="news-date">
+                  29 Set 2026
+                </span>
+
+                <div class="news-actions">
+
+                  <button
+                    class="secondary-button"
+                    type="button"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+                    •••
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+    </section>
+  `;
+}

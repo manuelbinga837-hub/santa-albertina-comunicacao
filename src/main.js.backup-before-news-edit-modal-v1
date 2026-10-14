@@ -1,0 +1,1550 @@
+import { navigate, startRouter, getCurrentRoute } from "./router/router.js";
+import { CommunicationLayout } from "./layouts/CommunicationLayout/CommunicationLayout.js";
+import { Noticias } from "./pages/Noticias/Noticias.js";
+import { getCurrentUser, isAuthenticated, logout } from "./services/auth.js";
+import { Login, setupLogin } from "./pages/Login/Login.js";
+
+import "./styles/main.css";
+import "./pages/Dashboard/Dashboard.css";
+import "./pages/Noticias/Noticias.css";
+import "./pages/Login/Login.css";
+
+import { apiRequest } from "./services/api.js";
+import { getNews } from "./services/news.js";
+const app = document.querySelector("#app");
+
+function Dashboard() {
+  return `
+    <section class="dashboard">
+
+      <!-- HERO PRINCIPAL -->
+      <section class="dashboard-hero">
+
+        <div class="dashboard-hero-overlay"></div>
+
+        <div class="dashboard-hero-grid"></div>
+
+        <div class="dashboard-hero-meta">
+          <span class="hero-status">
+            <i></i>
+            Central activa
+          </span>
+
+          <span>Santa Albertina</span>
+        </div>
+
+        <div class="dashboard-hero-content">
+
+          <span class="dashboard-hero-eyebrow">
+            CENTRAL DE COMUNICAÇÃO
+          </span>
+
+          <h1>
+            Dê voz à comunidade
+            <strong>Santa Albertina.</strong>
+          </h1>
+
+          <p class="dashboard-hero-description">
+            Crie, publique e acompanhe notícias, eventos,
+            fotografias e vídeos da comunidade escolar
+            num único espaço.
+          </p>
+
+          <div class="dashboard-hero-actions">
+
+            <button
+              type="button"
+              class="dashboard-hero-primary"
+              id="dashboard-new-publication"
+            >
+              <span>+</span>
+              Nova publicação
+            </button>
+
+            <a
+              href="http://localhost:5173"
+              class="dashboard-hero-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver site público
+              <span>↗</span>
+            </a>
+
+          </div>
+
+        </div>
+
+        <div class="dashboard-hero-bottom">
+
+          <div>
+            <strong>04</strong>
+            <span>áreas de conteúdo</span>
+          </div>
+
+          <div>
+            <strong>24/7</strong>
+            <span>comunicação centralizada</span>
+          </div>
+
+          <div>
+            <strong>SA</strong>
+            <span>Santa Albertina</span>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MODAL — NOVA PUBLICAÇÃO -->
+      <div
+        class="publication-modal"
+        id="publication-modal"
+        aria-hidden="true"
+      >
+        <div
+          class="publication-modal-backdrop"
+          data-close-publication-modal
+        ></div>
+
+        <div
+          class="publication-modal-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="publication-modal-title"
+        >
+
+          <button
+            type="button"
+            class="publication-modal-close"
+            id="publication-modal-close"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+
+          <div class="publication-modal-header">
+
+            <span class="publication-modal-eyebrow">
+              NOVA PUBLICAÇÃO
+            </span>
+
+            <h2 id="publication-modal-title">
+              O que deseja publicar?
+            </h2>
+
+            <p>
+              Escolha o tipo de conteúdo. Será aberta a respectiva
+              área da Central de Comunicação.
+            </p>
+
+          </div>
+
+          <div class="publication-modal-options">
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/noticias"
+            >
+              <span class="publication-option-icon news">▤</span>
+
+              <span class="publication-option-text">
+                <strong>Nova notícia</strong>
+                <small>Publicar uma nova informação</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/eventos"
+            >
+              <span class="publication-option-icon event">▣</span>
+
+              <span class="publication-option-text">
+                <strong>Novo evento</strong>
+                <small>Criar um evento escolar</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/galeria"
+            >
+              <span class="publication-option-icon gallery">▧</span>
+
+              <span class="publication-option-text">
+                <strong>Nova galeria</strong>
+                <small>Criar um álbum de fotografias</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+
+            <button
+              type="button"
+              class="publication-option"
+              data-publication-route="/videos"
+            >
+              <span class="publication-option-icon video">▶</span>
+
+              <span class="publication-option-text">
+                <strong>Novo vídeo</strong>
+                <small>Adicionar conteúdo audiovisual</small>
+              </span>
+
+              <span class="publication-option-arrow">→</span>
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ESTATÍSTICAS -->
+      <section class="dashboard-section">
+
+        <div class="dashboard-section-heading">
+
+          <div>
+            <span class="dashboard-section-label">
+              VISÃO GERAL
+            </span>
+
+            <h2>
+              Conteúdo publicado
+            </h2>
+          </div>
+
+          <span class="dashboard-section-note">
+            Resumo da comunicação
+          </span>
+
+        </div>
+
+        <div class="dashboard-stats-grid">
+
+          <article class="dashboard-stat-card stat-news">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▤</span>
+              <span class="dashboard-stat-tag">Notícias</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              24
+            </div>
+
+            <p>
+              publicações disponíveis no site
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Conteúdo editorial</span>
+              <a href="/noticias" data-route="/noticias">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+
+          <article class="dashboard-stat-card stat-events">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▣</span>
+              <span class="dashboard-stat-tag">Eventos</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              8
+            </div>
+
+            <p>
+              eventos publicados para a comunidade
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Agenda escolar</span>
+              <a href="/eventos" data-route="/eventos">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+
+          <article class="dashboard-stat-card stat-gallery">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▧</span>
+              <span class="dashboard-stat-tag">Galeria</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              56
+            </div>
+
+            <p>
+              fotografias organizadas em álbuns
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Memória visual</span>
+              <a href="/galeria" data-route="/galeria">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+
+          <article class="dashboard-stat-card stat-videos">
+
+            <div class="dashboard-stat-top">
+              <span class="dashboard-stat-icon">▶</span>
+              <span class="dashboard-stat-tag">Vídeos</span>
+            </div>
+
+            <div class="dashboard-stat-number">
+              7
+            </div>
+
+            <p>
+              vídeos disponíveis para visualização
+            </p>
+
+            <div class="dashboard-stat-footer">
+              <span>Conteúdo audiovisual</span>
+              <a href="/videos" data-route="/videos">
+                Gerir →
+              </a>
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- ACTIVIDADE + ACESSO RÁPIDO -->
+      <section class="dashboard-lower-grid">
+
+
+        <!-- ACTIVIDADE -->
+        <section class="dashboard-panel dashboard-activity">
+
+          <div class="dashboard-panel-header">
+
+            <div>
+              <span class="dashboard-section-label">
+                RECENTE
+              </span>
+
+              <h2>
+                Actividade recente
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              class="dashboard-panel-link"
+            >
+              Ver tudo →
+            </button>
+
+          </div>
+
+
+          <div class="dashboard-activity-list">
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon news">
+                ▤
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Nova notícia publicada
+                </strong>
+
+                <p>
+                  Início das actividades escolares
+                </p>
+
+                <span>
+                  Há 15 minutos
+                </span>
+              </div>
+
+              <span class="activity-status published">
+                Publicado
+              </span>
+
+            </article>
+
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon event">
+                ▣
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Novo evento criado
+                </strong>
+
+                <p>
+                  Reunião de encarregados
+                </p>
+
+                <span>
+                  Há 1 hora
+                </span>
+              </div>
+
+              <span class="activity-status published">
+                Publicado
+              </span>
+
+            </article>
+
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon video">
+                ▶
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Novo vídeo publicado
+                </strong>
+
+                <p>
+                  Actividade escolar
+                </p>
+
+                <span>
+                  Há 3 horas
+                </span>
+              </div>
+
+              <span class="activity-status published">
+                Publicado
+              </span>
+
+            </article>
+
+
+            <article class="dashboard-activity-item">
+
+              <div class="dashboard-activity-icon message">
+                ✉
+              </div>
+
+              <div class="dashboard-activity-content">
+                <strong>
+                  Nova mensagem recebida
+                </strong>
+
+                <p>
+                  João Manuel enviou uma mensagem
+                </p>
+
+                <span>
+                  Há 4 horas
+                </span>
+              </div>
+
+              <span class="activity-status new">
+                Nova
+              </span>
+
+            </article>
+
+          </div>
+
+        </section>
+
+
+        <!-- ACESSO RÁPIDO -->
+        <section class="dashboard-panel dashboard-quick">
+
+          <div class="dashboard-panel-header">
+
+            <div>
+              <span class="dashboard-section-label">
+                ACESSO RÁPIDO
+              </span>
+
+              <h2>
+                Criar conteúdo
+              </h2>
+            </div>
+
+          </div>
+
+
+          <div class="dashboard-quick-grid">
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-news"
+              data-route="/noticias"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▤
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Nova notícia</strong>
+                <small>Publicar informação</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-event"
+              data-route="/eventos"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▣
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Novo evento</strong>
+                <small>Criar evento escolar</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-gallery"
+              data-route="/galeria"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▧
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Nova galeria</strong>
+                <small>Adicionar fotografias</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="dashboard-quick-card quick-video"
+              data-route="/videos"
+            >
+              <span class="quick-card-overlay"></span>
+
+              <span class="quick-card-icon">
+                ▶
+              </span>
+
+              <span class="quick-card-content">
+                <strong>Novo vídeo</strong>
+                <small>Adicionar conteúdo</small>
+              </span>
+
+              <span class="quick-card-arrow">
+                →
+              </span>
+            </button>
+
+          </div>
+
+        </section>
+
+      </section>
+
+    </section>
+  `;
+}
+
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatNewsDate(value) {
+  if (!value) {
+    return "Sem data";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Sem data";
+  }
+
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  })
+    .format(date)
+    .replace(".", "");
+}
+
+function getNewsStatusLabel(status) {
+  const labels = {
+    PUBLISHED: "Publicado",
+    DRAFT: "Rascunho",
+    SCHEDULED: "Agendado"
+  };
+
+  return labels[status] || status || "Sem estado";
+}
+
+function getNewsStatusClass(status) {
+  const classes = {
+    PUBLISHED: "published",
+    DRAFT: "draft",
+    SCHEDULED: "scheduled"
+  };
+
+  return classes[status] || "draft";
+}
+
+let allNewsData = [];
+
+function normalizeNewsText(value = "") {
+  return String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function getFilteredNews() {
+  const searchInput =
+    document.querySelector("#news-search-input");
+
+  const statusFilter =
+    document.querySelector("#news-status-filter");
+
+  const categoryFilter =
+    document.querySelector("#news-category-filter");
+
+  const searchTerm =
+    normalizeNewsText(searchInput?.value || "");
+
+  const selectedStatus =
+    normalizeNewsText(statusFilter?.value || "");
+
+  const selectedCategory =
+    normalizeNewsText(categoryFilter?.value || "");
+
+  return allNewsData.filter((item) => {
+    const title =
+      normalizeNewsText(item.title);
+
+    const summary =
+      normalizeNewsText(item.summary);
+
+    const content =
+      normalizeNewsText(item.content);
+
+    const category =
+      normalizeNewsText(item.category);
+
+    const status =
+      normalizeNewsText(item.publication_status);
+
+    const matchesSearch =
+      !searchTerm ||
+      title.includes(searchTerm) ||
+      summary.includes(searchTerm) ||
+      content.includes(searchTerm);
+
+    const matchesStatus =
+      !selectedStatus ||
+      status === selectedStatus;
+
+    const matchesCategory =
+      !selectedCategory ||
+      category === selectedCategory;
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesCategory
+    );
+  });
+}
+
+function updateNewsResultsCount(count) {
+  const resultsElement =
+    document.querySelector("#news-results-count");
+
+  if (!resultsElement) {
+    return;
+  }
+
+  resultsElement.textContent =
+    `${count} ${count === 1 ? "publicação" : "publicações"}`;
+}
+
+function renderNewsCards(news) {
+  const grid = document.querySelector("#news-grid");
+
+  if (!grid) {
+    return;
+  }
+
+  updateNewsResultsCount(news.length);
+
+  if (!news.length) {
+    grid.innerHTML = `
+      <div class="news-empty-state">
+        <strong>Nenhuma notícia encontrada</strong>
+        <p>
+          Tente alterar a pesquisa ou os filtros selecionados.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  grid.innerHTML = news.map((item) => {
+    const status = item.publication_status || "DRAFT";
+    const title = escapeHtml(item.title || "Sem título");
+    const summary = escapeHtml(
+      item.summary || "Esta publicação ainda não possui um resumo."
+    );
+    const category = escapeHtml(
+      item.category || "Geral"
+    );
+    const coverUrl = item.cover_url
+      ? escapeHtml(item.cover_url)
+      : "";
+
+    const imageContent = coverUrl
+      ? `
+          <img
+            src="${coverUrl}"
+            alt="${title}"
+            class="news-card-cover"
+          >
+        `
+      : `
+          <div class="news-image-placeholder">
+            📰
+          </div>
+        `;
+
+    return `
+      <article class="news-card" data-news-id="${item.id}">
+
+        <div class="news-card-image">
+          ${imageContent}
+
+          <span class="news-status ${getNewsStatusClass(status)}">
+            ${getNewsStatusLabel(status)}
+          </span>
+        </div>
+
+        <div class="news-card-body">
+
+          <div class="news-card-category">
+            ${category}
+          </div>
+
+          <h3>
+            ${title}
+          </h3>
+
+          <p>
+            ${summary}
+          </p>
+
+          <div class="news-card-footer">
+
+            <span class="news-date">
+              ${formatNewsDate(
+                item.published_at ||
+                item.scheduled_at ||
+                item.created_at
+              )}
+            </span>
+
+            <div class="news-actions">
+
+              <button
+                class="secondary-button"
+                type="button"
+                data-action="edit-news"
+                data-news-id="${item.id}"
+              >
+                Editar
+              </button>
+
+              <button
+                class="icon-button"
+                type="button"
+                data-action="news-menu"
+                data-news-id="${item.id}"
+                aria-label="Mais opções"
+              >
+                •••
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </article>
+    `;
+  }).join("");
+}
+
+function setupNewsSearchAndFilters() {
+  const searchInput =
+    document.querySelector("#news-search-input");
+
+  const statusFilter =
+    document.querySelector("#news-status-filter");
+
+  const categoryFilter =
+    document.querySelector("#news-category-filter");
+
+  if (!searchInput || !statusFilter || !categoryFilter) {
+    return;
+  }
+
+  const applyFilters = () => {
+    const filteredNews = getFilteredNews();
+
+    renderNewsCards(filteredNews);
+  };
+
+  searchInput.addEventListener(
+    "input",
+    applyFilters
+  );
+
+  statusFilter.addEventListener(
+    "change",
+    applyFilters
+  );
+
+  categoryFilter.addEventListener(
+    "change",
+    applyFilters
+  );
+}
+
+async function loadNewsData() {
+  const totalElement = document.querySelector("#news-total");
+  const publishedElement = document.querySelector("#news-published");
+  const draftsElement = document.querySelector("#news-drafts");
+  const scheduledElement = document.querySelector("#news-scheduled");
+  const resultsElement = document.querySelector("#news-results-count");
+  const grid = document.querySelector("#news-grid");
+
+  if (
+    !totalElement ||
+    !publishedElement ||
+    !draftsElement ||
+    !scheduledElement
+  ) {
+    return;
+  }
+
+  if (grid) {
+    grid.innerHTML = `
+      <div class="news-loading-state">
+        A carregar notícias...
+      </div>
+    `;
+  }
+
+  try {
+    const news = await getNews();
+
+    allNewsData = news;
+
+    const total = news.length;
+
+    const published = news.filter(
+      (item) => item.publication_status === "PUBLISHED"
+    ).length;
+
+    const drafts = news.filter(
+      (item) => item.publication_status === "DRAFT"
+    ).length;
+
+    const scheduled = news.filter(
+      (item) => item.publication_status === "SCHEDULED"
+    ).length;
+
+    totalElement.textContent = total;
+    publishedElement.textContent = published;
+    draftsElement.textContent = drafts;
+    scheduledElement.textContent = scheduled;
+
+    if (resultsElement) {
+      resultsElement.textContent =
+        `${total} ${total === 1 ? "publicação" : "publicações"}`;
+    }
+
+    renderNewsCards(news);
+
+    setupNewsSearchAndFilters();
+
+    console.log("✓ Notícias carregadas:", news);
+  } catch (error) {
+    console.error("Erro ao carregar notícias:", error);
+
+    totalElement.textContent = "—";
+    publishedElement.textContent = "—";
+    draftsElement.textContent = "—";
+    scheduledElement.textContent = "—";
+
+    if (resultsElement) {
+      resultsElement.textContent =
+        "Não foi possível carregar as publicações";
+    }
+
+    if (grid) {
+      grid.innerHTML = `
+        <div class="news-error-state">
+          <strong>Não foi possível carregar as notícias.</strong>
+          <p>Verifique se o servidor está ligado e tente novamente.</p>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderCurrentPage() {
+  const currentRoute = getCurrentRoute();
+
+  let content = "";
+
+  switch (currentRoute.page) {
+    case "Dashboard":
+      content = Dashboard();
+      break;
+
+    case "Noticias":
+      content = Noticias();
+      break;
+
+    case "Eventos":
+      content = `
+        <section class="communication-page">
+          <h1>Eventos</h1>
+          <p>Página de eventos em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Galeria":
+      content = `
+        <section class="communication-page">
+          <h1>Galeria</h1>
+          <p>Página de galeria em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Videos":
+      content = `
+        <section class="communication-page">
+          <h1>Vídeos</h1>
+          <p>Página de vídeos em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Mensagens":
+      content = `
+        <section class="communication-page">
+          <h1>Mensagens</h1>
+          <p>Página de mensagens em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Configuracoes":
+      content = `
+        <section class="communication-page">
+          <h1>Configurações</h1>
+          <p>Página de configurações em construção.</p>
+        </section>
+      `;
+      break;
+
+    case "Conta":
+      content = `
+        <section class="communication-page">
+          <h1>Minha conta</h1>
+          <p>Página da conta em construção.</p>
+        </section>
+      `;
+      break;
+
+    default:
+      content = Dashboard();
+  }
+
+  app.innerHTML = CommunicationLayout(content, currentRoute.path);
+
+  setupMobileMenu();
+  setupPublicationModal();
+  setupNewsModal();
+
+  if (currentRoute.page === "Noticias") {
+    loadNewsData();
+  }
+}
+
+function setupMobileMenu() {
+  const menuButton = document.querySelector("#sidebar-open");
+  const sidebar = document.querySelector("#communication-sidebar");
+  const sidebarClose = document.querySelector("#sidebar-close");
+  const overlay = document.querySelector("#communication-overlay");
+
+  if (!menuButton || !sidebar || !sidebarClose || !overlay) {
+    return;
+  }
+
+  function openSidebar() {
+    sidebar.classList.add("is-open");
+    overlay.classList.add("is-visible");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("is-open");
+    overlay.classList.remove("is-visible");
+    overlay.setAttribute("aria-hidden", "true");
+  }
+
+  menuButton.addEventListener("click", openSidebar);
+  sidebarClose.addEventListener("click", closeSidebar);
+  overlay.addEventListener("click", closeSidebar);
+
+  sidebar.querySelectorAll("a[data-route]").forEach((item) => {
+    item.addEventListener("click", closeSidebar);
+  });
+}
+
+function setupNewsModal() {
+  const openButton = document.querySelector(
+    '[data-action="new-news"]'
+  );
+
+  const modal = document.querySelector(
+    "#news-create-modal"
+  );
+
+  const closeButton = document.querySelector(
+    "#news-create-modal-close"
+  );
+
+  const cancelButton = document.querySelector(
+    "#news-create-cancel"
+  );
+
+  const form = document.querySelector(
+    "#news-create-form"
+  );
+
+  const statusSelect = document.querySelector(
+    "#news-status"
+  );
+
+  const scheduledField = document.querySelector(
+    "#news-scheduled-at-field"
+  );
+
+  const fileInput = document.querySelector(
+    "#news-cover-file"
+  );
+
+  const coverUrlInput = document.querySelector(
+    "#news-cover-url"
+  );
+
+  const coverLinkButton = document.querySelector(
+    "#news-cover-link-button"
+  );
+
+  const preview = document.querySelector(
+    "#news-cover-preview"
+  );
+
+  if (
+    !openButton ||
+    !modal ||
+    !closeButton ||
+    !cancelButton ||
+    !form
+  ) {
+    return;
+  }
+
+  let selectedObjectUrl = null;
+
+  function closeModal() {
+    modal.classList.remove("is-visible");
+    modal.setAttribute("aria-hidden", "true");
+
+    document.body.style.overflow = "";
+  }
+
+  function openModal() {
+    modal.classList.add("is-visible");
+    modal.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+  }
+
+  function updateScheduledField() {
+    if (!statusSelect || !scheduledField) {
+      return;
+    }
+
+    const isScheduled =
+      statusSelect.value === "SCHEDULED";
+
+    scheduledField.hidden = !isScheduled;
+  }
+
+  function showPreview(src) {
+    if (!preview || !src) {
+      return;
+    }
+
+    preview.innerHTML = `
+      <img
+        src="${src}"
+        alt="Pré-visualização da imagem de capa"
+      />
+    `;
+  }
+
+  function resetPreview() {
+    if (!preview) {
+      return;
+    }
+
+    preview.innerHTML = `
+      <span>🖼️</span>
+      <small>
+        A pré-visualização aparecerá aqui
+      </small>
+    `;
+  }
+
+  function handleFileChange() {
+    const file = fileInput?.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      return;
+    }
+
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+    }
+
+    selectedObjectUrl = URL.createObjectURL(file);
+
+    showPreview(selectedObjectUrl);
+
+    if (coverUrlInput) {
+      coverUrlInput.value = "";
+    }
+  }
+
+  function handleCoverLink() {
+    const url = coverUrlInput?.value.trim();
+
+    if (!url) {
+      return;
+    }
+
+    try {
+      new URL(url);
+    } catch {
+      coverUrlInput.focus();
+      return;
+    }
+
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+      selectedObjectUrl = null;
+    }
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    showPreview(url);
+  }
+
+  openButton.addEventListener("click", openModal);
+
+  closeButton.addEventListener("click", closeModal);
+
+  cancelButton.addEventListener("click", closeModal);
+
+  modal
+    .querySelectorAll("[data-close-news-modal]")
+    .forEach((element) => {
+      element.addEventListener("click", closeModal);
+    });
+
+  if (statusSelect) {
+    statusSelect.addEventListener(
+      "change",
+      updateScheduledField
+    );
+
+    updateScheduledField();
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener(
+      "change",
+      handleFileChange
+    );
+  }
+
+  if (coverLinkButton) {
+    coverLinkButton.addEventListener(
+      "click",
+      handleCoverLink
+    );
+  }
+
+  if (coverUrlInput) {
+    coverUrlInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleCoverLink();
+      }
+    });
+  }
+
+  form.addEventListener("reset", () => {
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+      selectedObjectUrl = null;
+    }
+
+    resetPreview();
+
+    if (scheduledField) {
+      scheduledField.hidden = true;
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      modal.classList.contains("is-visible")
+    ) {
+      closeModal();
+    }
+  });
+
+  async function submitNews(submitType) {
+    const formData = new FormData(form);
+
+    const title = formData.get("title")?.trim() || "";
+    const summary = formData.get("summary")?.trim() || "";
+    const content = formData.get("content")?.trim() || "";
+    const category = formData.get("category")?.trim() || "";
+    const author = formData.get("author")?.trim() || "";
+    const visibility =
+      formData.get("visibility") || "SITE_AND_APP";
+
+    const status =
+      submitType === "publish"
+        ? "PUBLISHED"
+        : formData.get("status") || "DRAFT";
+
+    const coverUrl =
+      formData.get("coverUrl")?.trim() || "";
+
+    const scheduledAt =
+      formData.get("scheduledAt") || "";
+
+    const messageElement = document.querySelector(
+      "#news-form-message"
+    );
+
+    if (!title || !content) {
+      if (messageElement) {
+        messageElement.textContent =
+          "Preencha o título e o conteúdo da notícia.";
+        messageElement.hidden = false;
+      }
+
+      return;
+    }
+
+    if (status === "SCHEDULED" && !scheduledAt) {
+      if (messageElement) {
+        messageElement.textContent =
+          "Escolha a data e hora para agendar a publicação.";
+        messageElement.hidden = false;
+      }
+
+      return;
+    }
+
+    const payload = new FormData();
+
+    payload.append("title", title);
+    payload.append("content", content);
+    payload.append("visibility", visibility);
+    payload.append("status", status);
+
+    if (summary) {
+      payload.append("summary", summary);
+    }
+
+    if (category) {
+      payload.append("category", category);
+    }
+
+    if (author) {
+      payload.append("author", author);
+    }
+
+    const coverFile =
+      form.querySelector("#news-cover-file")?.files?.[0];
+
+    if (coverFile) {
+      payload.append("coverFile", coverFile);
+    } else if (coverUrl) {
+      payload.append("coverUrl", coverUrl);
+    }
+
+    if (status === "SCHEDULED") {
+      payload.append(
+        "scheduledAt",
+        new Date(scheduledAt).toISOString()
+      );
+    }
+
+    if (status === "PUBLISHED") {
+      payload.append(
+        "publishedAt",
+        new Date().toISOString()
+      );
+    }
+
+    const submitButtons = form.querySelectorAll(
+      "[data-news-submit]"
+    );
+
+    submitButtons.forEach((button) => {
+      button.disabled = true;
+    });
+
+    if (messageElement) {
+      messageElement.hidden = true;
+      messageElement.classList.remove("success");
+      messageElement.textContent = "";
+    }
+
+    try {
+      await apiRequest("/news", {
+        method: "POST",
+        body: payload
+      });
+
+      if (messageElement) {
+        messageElement.textContent =
+          status === "PUBLISHED"
+            ? "Notícia publicada com sucesso."
+            : status === "SCHEDULED"
+              ? "Notícia agendada com sucesso."
+              : "Rascunho guardado com sucesso.";
+
+        messageElement.classList.add("success");
+        messageElement.hidden = false;
+      }
+
+      setTimeout(() => {
+        closeModal();
+        window.location.reload();
+      }, 700);
+
+    } catch (error) {
+      if (messageElement) {
+        messageElement.textContent =
+          error?.message ||
+          "Não foi possível guardar a notícia.";
+
+        messageElement.classList.remove("success");
+        messageElement.hidden = false;
+      }
+    } finally {
+      submitButtons.forEach((button) => {
+        button.disabled = false;
+      });
+    }
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const submitter =
+      event.submitter ||
+      document.activeElement;
+
+    const submitType =
+      submitter?.dataset?.newsSubmit ||
+      "draft";
+
+    submitNews(submitType);
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (selectedObjectUrl) {
+      URL.revokeObjectURL(selectedObjectUrl);
+    }
+  });
+}
+
+function setupPublicationModal() {
+  const openButton = document.querySelector("#dashboard-new-publication");
+  const modal = document.querySelector("#publication-modal");
+  const closeButton = document.querySelector("#publication-modal-close");
+
+  if (!openButton || !modal || !closeButton) {
+    return;
+  }
+
+  const closeModal = () => {
+    modal.classList.remove("is-visible");
+    modal.setAttribute("aria-hidden", "true");
+  };
+
+  const openModal = () => {
+    modal.classList.add("is-visible");
+    modal.setAttribute("aria-hidden", "false");
+  };
+
+  openButton.addEventListener("click", openModal);
+  closeButton.addEventListener("click", closeModal);
+
+  modal.querySelectorAll("[data-close-publication-modal]").forEach((element) => {
+    element.addEventListener("click", closeModal);
+  });
+
+  modal.querySelectorAll("[data-publication-route]").forEach((option) => {
+    option.addEventListener("click", () => {
+      const route = option.dataset.publicationRoute;
+
+      closeModal();
+
+      if (route) {
+        navigate(route);
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+      closeModal();
+    }
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-route]");
+
+  if (!target) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const route = target.dataset.route;
+
+  if (route) {
+    navigate(route);
+  }
+});
+
+async function startCommunicationApp() {
+  if (!isAuthenticated()) {
+    app.innerHTML = Login();
+    setupLogin();
+    return;
+  }
+
+  try {
+    await getCurrentUser();
+
+    startRouter(renderCurrentPage);
+  } catch (error) {
+    logout();
+
+    app.innerHTML = Login();
+    setupLogin();
+  }
+}
+
+startCommunicationApp();

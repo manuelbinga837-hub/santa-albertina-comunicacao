@@ -1,0 +1,176 @@
+import { login } from "../../services/auth.js";
+
+export function Login() {
+  return `
+    <section class="login-page">
+
+      <div class="login-background"></div>
+
+      <div class="login-container">
+
+        <div class="login-brand">
+          <div class="login-brand-mark">SA</div>
+
+          <div>
+            <strong>Santa Albertina</strong>
+            <span>Central de Comunicação</span>
+          </div>
+        </div>
+
+        <div class="login-card">
+
+          <div class="login-header">
+            <span class="login-eyebrow">
+              ACESSO RESTRITO
+            </span>
+
+            <h1>
+              Entrar na Central
+            </h1>
+
+            <p>
+              Aceda ao espaço de gestão da comunicação
+              da Escola Santa Albertina.
+            </p>
+          </div>
+
+          <form id="communication-login-form" class="login-form">
+
+            <div class="login-field">
+              <label for="login-identifier">
+                E-mail ou telefone
+              </label>
+
+              <input
+                id="login-identifier"
+                name="identifier"
+                type="text"
+                autocomplete="username"
+                placeholder="Digite o seu e-mail ou telefone"
+                required
+              />
+            </div>
+
+            <div class="login-field">
+              <label for="login-password">
+                Palavra-passe
+              </label>
+
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Digite a sua palavra-passe"
+                required
+              />
+            </div>
+
+            <div
+              id="login-error"
+              class="login-error"
+              role="alert"
+              aria-live="polite"
+              hidden
+            ></div>
+
+            <button
+              type="submit"
+              class="login-submit"
+              id="login-submit"
+            >
+              <span class="login-submit-text">
+                Entrar na Central
+              </span>
+
+              <span
+                class="login-submit-loading"
+                aria-hidden="true"
+                hidden
+              >
+                A entrar...
+              </span>
+            </button>
+
+          </form>
+
+          <div class="login-footer">
+            <span>Santa Albertina</span>
+            <span>•</span>
+            <span>Comunicação</span>
+          </div>
+
+        </div>
+
+        <a
+          href="http://localhost:5173"
+          class="login-public-link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Voltar ao site público
+          <span>↗</span>
+        </a>
+
+      </div>
+
+    </section>
+  `;
+}
+
+export function setupLogin() {
+  const form = document.querySelector("#communication-login-form");
+  const identifierInput = document.querySelector("#login-identifier");
+  const passwordInput = document.querySelector("#login-password");
+  const errorElement = document.querySelector("#login-error");
+  const submitButton = document.querySelector("#login-submit");
+  const submitText = document.querySelector(".login-submit-text");
+  const submitLoading = document.querySelector(".login-submit-loading");
+
+  if (
+    !form ||
+    !identifierInput ||
+    !passwordInput ||
+    !errorElement ||
+    !submitButton
+  ) {
+    return;
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const identifier = identifierInput.value.trim();
+    const password = passwordInput.value;
+
+    errorElement.hidden = true;
+    errorElement.textContent = "";
+
+    if (!identifier || !password) {
+      errorElement.textContent =
+        "Preencha o e-mail ou telefone e a palavra-passe.";
+      errorElement.hidden = false;
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitText.hidden = true;
+    submitLoading.hidden = false;
+
+    try {
+      await login(identifier, password);
+
+      window.location.href = "/";
+    } catch (error) {
+      errorElement.textContent =
+        error?.message ||
+        "Não foi possível iniciar sessão. Verifique os seus dados.";
+
+      errorElement.hidden = false;
+    } finally {
+      submitButton.disabled = false;
+      submitText.hidden = false;
+      submitLoading.hidden = true;
+    }
+  });
+}
