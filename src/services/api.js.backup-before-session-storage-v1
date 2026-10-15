@@ -1,65 +1,66 @@
-const API_BASE_URL = "http://localhost:3000/api/v1";
+const API_BASE_URL = "https://sistema-escolar-santa-albertina-1.onrender.com/api/v1";
 
 function getToken() {
-  return localStorage.getItem("sa_communication_token");
+return localStorage.getItem("sa_communication_token");
 }
 
 export async function apiRequest(
-  path,
-  {
-    method = "GET",
-    body = null,
-    headers = {}
-  } = {}
+path,
+{
+method = "GET",
+body = null,
+headers = {}
+} = {}
 ) {
-  const token = getToken();
+const token = getToken();
 
-  const requestHeaders = {
-    ...headers
-  };
+const requestHeaders = {
+...headers
+};
 
-  if (body !== null && !(body instanceof FormData)) {
-    requestHeaders["Content-Type"] = "application/json";
-  }
+if (body !== null && !(body instanceof FormData)) {
+requestHeaders["Content-Type"] = "application/json";
+}
 
-  if (token) {
-    requestHeaders.Authorization = `Bearer ${token}`;
-  }
+if (token) {
+requestHeaders.Authorization = "Bearer ${token}";
+}
 
-  const response = await fetch(
-    `${API_BASE_URL}${path}`,
-    {
-      method,
-      headers: requestHeaders,
-      body:
-        body === null
-          ? null
-          : body instanceof FormData
-            ? body
-            : JSON.stringify(body)
-    }
-  );
+const response = await fetch(
+"${API_BASE_URL}${path}",
+{
+method,
+headers: requestHeaders,
+body:
+body === null
+? null
+: body instanceof FormData
+? body
+: JSON.stringify(body)
+}
+);
 
-  let data = null;
+let data = null;
 
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
+try {
+data = await response.json();
+} catch {
+data = null;
+}
 
-  if (!response.ok) {
-    const error = new Error(
-      data?.message || "Ocorreu um erro ao comunicar com o servidor."
-    );
+if (!response.ok) {
+const error = new Error(
+data?.message || "Ocorreu um erro ao comunicar com o servidor."
+);
 
-    error.status = response.status;
-    error.data = data;
+error.status = response.status;
+error.data = data;
 
-    throw error;
-  }
+throw error;
 
-  return data;
+}
+
+return data;
 }
 
 export { API_BASE_URL };
