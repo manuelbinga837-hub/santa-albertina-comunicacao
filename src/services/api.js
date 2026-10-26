@@ -1,4 +1,5 @@
-const API_BASE_URL = "https://sistema-escolar-santa-albertina-1.onrender.com/api/v1";
+const API_BASE_URL =
+"https://sistema-escolar-santa-albertina-1.onrender.com/api/v1";
 
 function getToken() {
 return sessionStorage.getItem("sa_communication_token");
@@ -50,7 +51,8 @@ data = null;
 
 if (!response.ok) {
 const error = new Error(
-data?.message || "Ocorreu um erro ao comunicar com o servidor."
+data?.message ||
+"Ocorreu um erro ao comunicar com o servidor."
 );
 
 error.status = response.status;
