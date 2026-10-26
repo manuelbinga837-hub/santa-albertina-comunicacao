@@ -1,8 +1,10 @@
 const API_BASE_URL =
 "https://sistema-escolar-santa-albertina-1.onrender.com/api/v1";
 
+const TOKEN_KEY = "sa_communication_token";
+
 function getToken() {
-return sessionStorage.getItem("sa_communication_token");
+return sessionStorage.getItem(TOKEN_KEY);
 }
 
 export async function apiRequest(
@@ -10,13 +12,14 @@ path,
 {
 method = "GET",
 body = null,
-headers = {}
+headers = {},
 } = {}
 ) {
 const token = getToken();
 
 const requestHeaders = {
-...headers
+Accept: "application/json",
+...headers,
 };
 
 if (body !== null && !(body instanceof FormData)) {
@@ -27,9 +30,10 @@ if (token) {
 requestHeaders.Authorization = "Bearer ${token}";
 }
 
-const response = await fetch(
-"${API_BASE_URL}${path}",
-{
+let response;
+
+try {
+response = await fetch("${API_BASE_URL}${path}", {
 method,
 headers: requestHeaders,
 body:
@@ -37,9 +41,19 @@ body === null
 ? null
 : body instanceof FormData
 ? body
-: JSON.stringify(body)
-}
+: JSON.stringify(body),
+});
+} catch (error) {
+const networkError = new Error(
+"Não foi possível comunicar com o servidor. Verifique a ligação à Internet ou a configuração CORS."
 );
+
+networkError.cause = error;
+networkError.code = "NETWORK_ERROR";
+
+throw networkError;
+
+}
 
 let data = null;
 
@@ -52,7 +66,8 @@ data = null;
 if (!response.ok) {
 const error = new Error(
 data?.message ||
-"Ocorreu um erro ao comunicar com o servidor."
+data?.error ||
+"Erro do servidor (HTTP ${response.status})."
 );
 
 error.status = response.status;
